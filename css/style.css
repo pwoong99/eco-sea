@@ -65,8 +65,23 @@ input { font-family: inherit; }
 @keyframes tailWag { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
 .fish-fin { transform-box: fill-box; transform-origin: 50% 100%; animation: finFlap .6s ease-in-out infinite alternate; }
 @keyframes finFlap { from { transform: scaleY(.7); } to { transform: scaleY(1.1); } }
-.turtle { animation: turtle 9s ease-in-out infinite alternate; }
-@keyframes turtle { from { transform: translate(-60px, 10px); } to { transform: translate(-260px, -10px); } }
+/* 바다거북: 왼쪽으로 천천히 헤엄 + 노 젓듯 앞지느러미 + 몸 출렁임 */
+.turtle-swim { animation: turtleSwim 46s linear infinite; animation-delay: -28s; }
+@keyframes turtleSwim { from { transform: translateX(0); } to { transform: translateX(-2000px); } }
+.turtle-body { transform-box: fill-box; transform-origin: 50% 50%; animation: turtleBob 2.4s ease-in-out infinite; }
+@keyframes turtleBob { 0%, 100% { transform: translateX(-5px) rotate(-3deg); } 50% { transform: translateX(5px) rotate(3deg); } }
+.flip-fl, .flip-fr, .flip-bl, .flip-br { transform-box: fill-box; animation: paddleL 1.2s ease-in-out infinite; }
+.flip-fl { transform-origin: 100% 100%; }
+.flip-fr { transform-origin: 0% 100%; animation-name: paddleR; }
+.flip-bl { transform-origin: 100% 0%; animation-name: paddleR; animation-duration: 1.2s; animation-delay: -.3s; }
+.flip-br { transform-origin: 0% 0%; animation-delay: -.3s; }
+@keyframes paddleL { 0%, 100% { transform: rotate(18deg); } 50% { transform: rotate(-28deg); } }
+@keyframes paddleR { 0%, 100% { transform: rotate(-18deg); } 50% { transform: rotate(28deg); } }
+.turtle-head { transform-box: fill-box; transform-origin: 50% 100%; animation: headBob 2.4s ease-in-out infinite; }
+@keyframes headBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+/* 마스코트 이름표 */
+.name-tag { opacity: .95; }
 .bubbles { animation: bubbles 4s ease-in infinite; }
 @keyframes bubbles { from { transform: translateY(40px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(-40px); opacity: 0; } }
 
@@ -113,8 +128,17 @@ body.on-start #sun { opacity: 0; }
 body.in-game .top-tools { top: auto; bottom: 1.2vh; right: 50%; transform: translateX(50%); }
 
 .maker {
-  position: fixed; left: 1vw; bottom: .8vh; z-index: 5;
+  position: fixed; left: 1vw; bottom: .8vh; z-index: 45;
   font-size: max(11px, .8vw); color: rgba(51, 64, 90, .55);
+}
+/* 버전에 마우스를 올리면 연결 상태 표시 */
+#versionLabel { position: relative; cursor: help; padding: 2px 4px; border-radius: 6px; }
+#versionLabel:hover { background: rgba(255, 255, 255, .7); color: var(--ink); }
+#versionLabel:hover::after {
+  content: attr(data-tip);
+  position: absolute; left: 0; bottom: calc(100% + 6px); white-space: nowrap;
+  background: var(--ink); color: #fff; padding: 5px 10px; border-radius: 10px; font-size: 13px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .2);
 }
 body.in-game .maker { display: none; }
 

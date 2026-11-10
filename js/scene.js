@@ -34,23 +34,56 @@ export function mascotSVG(type) {
       ${sweat}
     </g>`;
   }
-  // 아기 말레이맥 '타피'
+  // 아기 말레이맥 '타피' — 옆모습(왼쪽을 봄): 검은 앞몸·뒷몸 + 하얀 가운데 띠 + 길게 늘어진 코
+  const B = '#2b2b35';
   return `
-  <g class="mascot">
-    <ellipse cx="0" cy="2" rx="30" ry="6" fill="#000" opacity=".12"/>
-    <ellipse cx="-14" cy="-6" rx="11" ry="8" fill="#2b2b35"/><ellipse cx="14" cy="-6" rx="11" ry="8" fill="#2b2b35"/>
-    <ellipse cx="0" cy="-30" rx="31" ry="28" fill="#f4f4f6" stroke="#2b2b35" stroke-width="3"/>
-    <ellipse class="arm-l" cx="-31" cy="-34" rx="9" ry="15" fill="#2b2b35"/>
-    <ellipse class="arm-r" cx="31" cy="-34" rx="9" ry="15" fill="#2b2b35"/>
-    <circle cx="-23" cy="-104" r="10" fill="#2b2b35" stroke="#fff" stroke-width="3"/>
-    <circle cx="23" cy="-104" r="10" fill="#2b2b35" stroke="#fff" stroke-width="3"/>
-    <circle cx="0" cy="-80" r="31" fill="#2b2b35"/>
-    <path d="M-12 -76 Q-12 -58 0 -56 Q12 -58 12 -76 Z" fill="#4a4a58"/>
-    <ellipse cx="-4" cy="-59" rx="1.6" ry="1.2" fill="#1d1d24"/><ellipse cx="4" cy="-59" rx="1.6" ry="1.2" fill="#1d1d24"/>
-    ${eyes(-89)}
-    ${cheeks(-76)}
-    ${mouths(-52, '#fff')}
-    ${sweat}
+  <g class="mascot"><g transform="translate(8 0) scale(.86)">
+    <ellipse cx="4" cy="2" rx="50" ry="6" fill="#000" opacity=".12"/>
+    <!-- 뒤쪽 다리 (조금 어둡게) -->
+    <rect x="-30" y="-24" width="11" height="25" rx="5" fill="#1d1d24"/>
+    <rect x="30" y="-24" width="11" height="25" rx="5" fill="#1d1d24"/>
+    <!-- 꼬리 -->
+    <path d="M50 -44 Q60 -40 56 -30" stroke="${B}" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <!-- 몸통: 검정 -->
+    <ellipse cx="10" cy="-40" rx="44" ry="27" fill="${B}"/>
+    <!-- 하얀 안장 무늬 -->
+    <path d="M-6 -66 Q22 -71 44 -56 Q57 -40 44 -24 Q22 -10 -6 -15 Q-2 -40 -6 -66 Z" fill="#f6f6f8"/>
+    <path d="M2 -60 Q14 -62 26 -58" stroke="#dcdce4" stroke-width="2" fill="none"/>
+    <ellipse cx="10" cy="-40" rx="44" ry="27" fill="none" stroke="${B}" stroke-width="3"/>
+    <!-- 앞쪽 다리 -->
+    <rect x="-24" y="-22" width="12" height="23" rx="5" fill="${B}"/>
+    <rect x="22" y="-22" width="12" height="23" rx="5" fill="${B}"/>
+    <path d="M-24 -2 h12 M22 -2 h12" stroke="#55556a" stroke-width="2"/>
+    <!-- 귀 (하얀 테두리) -->
+    <ellipse cx="-30" cy="-90" rx="8" ry="10" fill="${B}" stroke="#fff" stroke-width="3" transform="rotate(-15 -30 -90)"/>
+    <ellipse cx="-14" cy="-87" rx="8" ry="10" fill="${B}" stroke="#fff" stroke-width="3" transform="rotate(15 -14 -87)"/>
+    <!-- 머리 -->
+    <ellipse cx="-28" cy="-64" rx="25" ry="23" fill="${B}"/>
+    <!-- 길게 늘어진 코 -->
+    <path d="M-44 -70 Q-64 -70 -68 -54 Q-70 -42 -62 -40 Q-56 -40 -57 -48 Q-56 -58 -44 -56 Z" fill="#3b3b4a"/>
+    <path d="M-60 -60 Q-64 -56 -64 -50 M-56 -64 Q-61 -60 -61 -54" stroke="#55556a" stroke-width="1.5" fill="none"/>
+    <ellipse cx="-62" cy="-42" rx="2.4" ry="1.6" fill="#15151c"/>
+    <!-- 눈 -->
+    <circle cx="-36" cy="-72" r="5.5" fill="#fff"/><circle class="pupil" cx="-37" cy="-71" r="3" fill="#15151c"/><circle cx="-36" cy="-73" r="1.2" fill="#fff"/>
+    <circle cx="-20" cy="-72" r="5.5" fill="#fff"/><circle class="pupil" cx="-21" cy="-71" r="3" fill="#15151c"/><circle cx="-20" cy="-73" r="1.2" fill="#fff"/>
+    <!-- 볼 -->
+    <circle cx="-14" cy="-58" r="5" fill="#ff9fb2" opacity=".85"/>
+    <!-- 입 (코 아래) -->
+    <g transform="translate(-46 -48)">
+      <path class="m-happy" d="M-5 0 Q0 6 5 0" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <path class="m-worry" d="M-5 4 Q0 -2 5 4" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <ellipse class="m-panic" cx="0" cy="3" rx="4" ry="5" fill="#ffb3c0"/>
+    </g>
+    <g transform="translate(-6 0)">${sweat}</g>
+  </g></g>`;
+}
+
+// 섬 위 마스코트 이름표
+function nameTag(text, color) {
+  const w = text.length * 15 + 22;
+  return `<g class="name-tag">
+    <rect x="${-w / 2}" y="10" width="${w}" height="26" rx="13" fill="#fff" stroke="${color}" stroke-width="3"/>
+    <text x="0" y="29" text-anchor="middle" font-size="16" fill="${color}" font-family="Jua, sans-serif">${text}</text>
   </g>`;
 }
 
@@ -219,7 +252,7 @@ export function buildScene(el) {
         <path d="M-62 -78 H62 M-60 -68 H60 M-58 -58 H58" stroke="#6b7f99" stroke-width="2"/>
       </g>
       <!-- 마스코트 반디 -->
-      <g id="mascotKorea" class="mascot-wrap" transform="translate(400 488)">${mascotSVG('korea')}</g>
+      <g id="mascotKorea" class="mascot-wrap" transform="translate(400 488)">${mascotSVG('korea')}${nameTag('반달가슴곰 반디', '#e0566a')}</g>
       <!-- 순천만 갈대 -->
       ${reeds(505, 615, 535)}
     </g>
@@ -249,7 +282,7 @@ export function buildScene(el) {
         <g stroke="#8a5a33" stroke-width="4"><path d="M-34 -32 L-48 6 M-22 -32 L-36 6 M-46 -18 H-30 M-44 -4 H-34"/></g>
       </g>
       <!-- 마스코트 타피 -->
-      <g id="mascotMalaysia" class="mascot-wrap" transform="translate(1190 486)">${mascotSVG('malaysia')}</g>
+      <g id="mascotMalaysia" class="mascot-wrap" transform="translate(1180 486)">${mascotSVG('malaysia')}${nameTag('말레이맥 타피', '#1d8f82')}</g>
       <!-- 맹그로브 -->
       ${mangrove(1010, 548)}
       ${mangrove(950, 578)}
@@ -264,15 +297,22 @@ export function buildScene(el) {
       ${fish(-80, 230, '#ffe066', false, 38, -20)}
       ${fish(1700, 90, '#7ad7a8', true, 29, -15)}
       <!-- 바다거북 -->
-      <g class="turtle"><g transform="translate(1150 140)">
-        <ellipse cx="-34" cy="-8" rx="14" ry="6" fill="#8fd18a" transform="rotate(-30 -34 -8)"/>
-        <ellipse cx="34" cy="-8" rx="14" ry="6" fill="#8fd18a" transform="rotate(30 34 -8)"/>
-        <ellipse cx="-28" cy="16" rx="10" ry="5" fill="#8fd18a" transform="rotate(30 -28 16)"/>
-        <ellipse cx="28" cy="16" rx="10" ry="5" fill="#8fd18a" transform="rotate(-30 28 16)"/>
-        <circle cx="0" cy="-30" r="12" fill="#8fd18a"/>
-        <circle cx="-4" cy="-33" r="2.4" fill="#222"/><circle cx="4" cy="-33" r="2.4" fill="#222"/>
-        <ellipse cx="0" cy="0" rx="30" ry="24" fill="#4c9a5a"/>
-        <path d="M0 -20 L12 -6 L6 12 L-6 12 L-12 -6 Z" fill="#62b56f" stroke="#3b7d47" stroke-width="2"/>
+      <!-- 바다거북: 머리가 왼쪽, 왼쪽으로 헤엄치며 앞지느러미로 노 젓기 -->
+      <g class="turtle-swim"><g transform="translate(1750 150) rotate(-90)">
+        <g class="turtle-body">
+          <g class="flip-fl"><ellipse cx="-34" cy="-8" rx="17" ry="6.5" fill="#8fd18a" transform="rotate(-30 -34 -8)"/></g>
+          <g class="flip-fr"><ellipse cx="34" cy="-8" rx="17" ry="6.5" fill="#8fd18a" transform="rotate(30 34 -8)"/></g>
+          <g class="flip-bl"><ellipse cx="-24" cy="18" rx="10" ry="5" fill="#8fd18a" transform="rotate(30 -24 18)"/></g>
+          <g class="flip-br"><ellipse cx="24" cy="18" rx="10" ry="5" fill="#8fd18a" transform="rotate(-30 24 18)"/></g>
+          <path d="M-4 22 L0 32 L4 22 Z" fill="#8fd18a"/>
+          <g class="turtle-head">
+            <ellipse cx="0" cy="-31" rx="11" ry="13" fill="#8fd18a"/>
+            <circle cx="-5" cy="-35" r="2.6" fill="#222"/><circle cx="5" cy="-35" r="2.6" fill="#222"/>
+          </g>
+          <ellipse cx="0" cy="0" rx="28" ry="25" fill="#4c9a5a"/>
+          <path d="M0 -19 L12 -6 L7 12 L-7 12 L-12 -6 Z" fill="#62b56f" stroke="#3b7d47" stroke-width="2"/>
+          <path d="M0 -19 L0 -25 M12 -6 L22 -12 M-12 -6 L-22 -12 M7 12 L14 20 M-7 12 L-14 20" stroke="#3b7d47" stroke-width="2"/>
+        </g>
       </g></g>
       <!-- 거품 -->
       <g class="bubbles">

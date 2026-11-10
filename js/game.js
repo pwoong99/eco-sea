@@ -181,7 +181,7 @@ function buildPanel(side) {
   const nm = human ? S.names[side] : '컴퓨터 친구';
   $('#panel-' + side).innerHTML = `
     <div class="p-head">
-      <svg viewBox="-50 -125 100 135">${mascotSVG(side)}</svg>
+      <svg viewBox="-60 -125 120 135">${mascotSVG(side)}</svg>
       <div>
         <div class="p-country">${COUNTRY[side].name}${human ? '' : '<span class="cpu-tag">🤖 컴퓨터</span>'}</div>
         <div class="p-name">${escapeHtml(nm)} · ${COUNTRY[side].mascot}와 함께</div>
@@ -410,7 +410,7 @@ async function endGame() {
   const box = $('#resultPlayers');
   box.innerHTML = SIDES.map(side => `
     <div class="rp ${side}">
-      <svg viewBox="-50 -125 100 135">${mascotSVG(side)}</svg>
+      <svg viewBox="-60 -125 120 135">${mascotSVG(side)}</svg>
       <div class="rp-name">${S.human[side] ? escapeHtml(S.names[side]) : '🤖 컴퓨터 친구'}</div>
       <div class="rp-country">${COUNTRY[side].name} 환경지킴이</div>
       <div class="rp-actions">실천 <b>${S.stats[side].actions}</b>번</div>
@@ -501,6 +501,6 @@ window.addEventListener('keydown', (e) => {
   const ver = $('#versionLabel');
   ver.textContent = VERSION;
   // 연결 상태는 화면에 표시하지 않고, 마우스를 올리면만 보이게
-  ver.title = mode === 'firebase' ? '온라인 랭킹 연결됨' : '로컬 랭킹(이 컴퓨터에만 저장)';
+  ver.dataset.tip = mode === 'firebase' ? '🟢 온라인 랭킹 연결됨' : '🟠 로컬 랭킹 (이 컴퓨터에만 저장)';
   show('start');
 })();
