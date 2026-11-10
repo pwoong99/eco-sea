@@ -1,4 +1,4 @@
-import * as store from './store.js';
+import * as store from './store.js?v=1.3.1';
 
 const $ = (s) => document.querySelector(s);
 const NAME = { korea: '한국', malaysia: '말레이시아' };
