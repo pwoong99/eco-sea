@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ▼ 관리자 이메일을 본인 것으로 바꾸세요 (Authentication에 등록한 이메일)
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email in ['관리자이메일@example.com'];
+    }
+
+    function validEntry(d) {
+      return d.keys().hasOnly(['nickname', 'country', 'actions', 'together', 'score', 'finalLevel', 'mode', 'dateKey', 'createdAt'])
+        && d.keys().hasAll(['nickname', 'country', 'actions', 'together', 'score', 'finalLevel', 'mode', 'dateKey', 'createdAt'])
+        && d.nickname is string && d.nickname.size() >= 1 && d.nickname.size() <= 8
+        && d.country in ['korea', 'malaysia']
+        && d.actions is int && d.actions >= 0 && d.actions <= 20
+        && d.together is int && d.together >= 0 && d.together <= 20
+        && d.score is int && d.score >= 0 && d.score <= 40000
+        && d.finalLevel is int && d.finalLevel >= 0 && d.finalLevel <= 100
+        && d.mode in ['1p', '2p']
+        && d.dateKey is string && d.dateKey.size() == 10
+        && d.createdAt == request.time;
+    }
+
+    function validStats() {
+      let n = request.resource.data;
+      let o = resource == null ? {} : resource.data;
+      return n.keys().hasOnly(['korea', 'malaysia', 'plays'])
+        && n.korea is int && n.malaysia is int && n.plays is int
+        && n.korea >= o.get('korea', 0) && n.korea <= o.get('korea', 0) + 20
+        && n.malaysia >= o.get('malaysia', 0) && n.malaysia <= o.get('malaysia', 0) + 20
+        && n.plays == o.get('plays', 0) + 1;
+    }
+
+    // 랭킹 기록: 누구나 보기 / 형식에 맞는 새 기록만 추가 / 삭제는 관리자만
+    match /rankings/{id} {
+      allow read: if true;
+      allow create: if validEntry(request.resource.data);
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // 나라별 누적 실천 수
+    match /stats/{docId} {
+      allow read: if true;
+      allow create, update: if isAdmin() || (docId == 'global' && validStats());
+      allow delete: if isAdmin();
+    }
+  }
+}
