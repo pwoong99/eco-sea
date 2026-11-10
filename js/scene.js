@@ -34,48 +34,39 @@ export function mascotSVG(type) {
       ${sweat}
     </g>`;
   }
-  // 아기 말레이맥 '타피' — 옆모습(왼쪽을 봄): 검은 앞몸·뒷몸 + 하얀 가운데 띠 + 길게 늘어진 코
+  // 아기 말레이맥 '타피' — 반디와 같은 정면 서 있는 모습
+  // 맥의 특징: 아래로 길게 늘어진 코, 허리를 두른 하얀 띠, 하얀 테두리 귀
   const B = '#2b2b35';
   return `
-  <g class="mascot"><g transform="translate(8 0) scale(.86)">
-    <ellipse cx="4" cy="2" rx="50" ry="6" fill="#000" opacity=".12"/>
-    <!-- 뒤쪽 다리 (조금 어둡게) -->
-    <rect x="-30" y="-24" width="11" height="25" rx="5" fill="#1d1d24"/>
-    <rect x="30" y="-24" width="11" height="25" rx="5" fill="#1d1d24"/>
-    <!-- 꼬리 -->
-    <path d="M50 -44 Q60 -40 56 -30" stroke="${B}" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <!-- 몸통: 검정 -->
-    <ellipse cx="10" cy="-40" rx="44" ry="27" fill="${B}"/>
-    <!-- 하얀 안장 무늬 -->
-    <path d="M-6 -66 Q22 -71 44 -56 Q57 -40 44 -24 Q22 -10 -6 -15 Q-2 -40 -6 -66 Z" fill="#f6f6f8"/>
-    <path d="M2 -60 Q14 -62 26 -58" stroke="#dcdce4" stroke-width="2" fill="none"/>
-    <ellipse cx="10" cy="-40" rx="44" ry="27" fill="none" stroke="${B}" stroke-width="3"/>
-    <!-- 앞쪽 다리 -->
-    <rect x="-24" y="-22" width="12" height="23" rx="5" fill="${B}"/>
-    <rect x="22" y="-22" width="12" height="23" rx="5" fill="${B}"/>
-    <path d="M-24 -2 h12 M22 -2 h12" stroke="#55556a" stroke-width="2"/>
+  <g class="mascot">
+    <ellipse cx="0" cy="2" rx="30" ry="6" fill="#000" opacity=".12"/>
+    <ellipse cx="-14" cy="-6" rx="11" ry="8" fill="${B}"/><ellipse cx="14" cy="-6" rx="11" ry="8" fill="${B}"/>
+    <path d="M-20 -2 h12 M8 -2 h12" stroke="#55556a" stroke-width="2"/>
+    <!-- 몸통: 검정 + 하얀 허리띠 -->
+    <ellipse cx="0" cy="-30" rx="31" ry="28" fill="${B}"/>
+    <path d="M-27 -45 Q0 -50 27 -45 Q31 -31 28 -17 Q0 -12 -28 -17 Q-31 -31 -27 -45 Z" fill="#f6f6f8"/>
+    <path d="M-18 -40 Q0 -43 18 -40" stroke="#dcdce4" stroke-width="2" fill="none"/>
+    <ellipse class="arm-l" cx="-31" cy="-36" rx="9" ry="15" fill="${B}"/>
+    <ellipse class="arm-r" cx="31" cy="-36" rx="9" ry="15" fill="${B}"/>
     <!-- 귀 (하얀 테두리) -->
-    <ellipse cx="-30" cy="-90" rx="8" ry="10" fill="${B}" stroke="#fff" stroke-width="3" transform="rotate(-15 -30 -90)"/>
-    <ellipse cx="-14" cy="-87" rx="8" ry="10" fill="${B}" stroke="#fff" stroke-width="3" transform="rotate(15 -14 -87)"/>
+    <ellipse cx="-23" cy="-105" rx="8.5" ry="11" fill="${B}" stroke="#fff" stroke-width="3.5" transform="rotate(-18 -23 -105)"/>
+    <ellipse cx="23" cy="-105" rx="8.5" ry="11" fill="${B}" stroke="#fff" stroke-width="3.5" transform="rotate(18 23 -105)"/>
     <!-- 머리 -->
-    <ellipse cx="-28" cy="-64" rx="25" ry="23" fill="${B}"/>
-    <!-- 길게 늘어진 코 -->
-    <path d="M-44 -70 Q-64 -70 -68 -54 Q-70 -42 -62 -40 Q-56 -40 -57 -48 Q-56 -58 -44 -56 Z" fill="#3b3b4a"/>
-    <path d="M-60 -60 Q-64 -56 -64 -50 M-56 -64 Q-61 -60 -61 -54" stroke="#55556a" stroke-width="1.5" fill="none"/>
-    <ellipse cx="-62" cy="-42" rx="2.4" ry="1.6" fill="#15151c"/>
-    <!-- 눈 -->
-    <circle cx="-36" cy="-72" r="5.5" fill="#fff"/><circle class="pupil" cx="-37" cy="-71" r="3" fill="#15151c"/><circle cx="-36" cy="-73" r="1.2" fill="#fff"/>
-    <circle cx="-20" cy="-72" r="5.5" fill="#fff"/><circle class="pupil" cx="-21" cy="-71" r="3" fill="#15151c"/><circle cx="-20" cy="-73" r="1.2" fill="#fff"/>
-    <!-- 볼 -->
-    <circle cx="-14" cy="-58" r="5" fill="#ff9fb2" opacity=".85"/>
-    <!-- 입 (코 아래) -->
-    <g transform="translate(-46 -48)">
-      <path class="m-happy" d="M-5 0 Q0 6 5 0" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-      <path class="m-worry" d="M-5 4 Q0 -2 5 4" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-      <ellipse class="m-panic" cx="0" cy="3" rx="4" ry="5" fill="#ffb3c0"/>
+    <circle cx="0" cy="-80" r="31" fill="${B}"/>
+    ${eyes(-91)}
+    ${cheeks(-74)}
+    <!-- 아래로 길게 늘어진 코 -->
+    <path d="M-10 -84 Q-12 -67 -8 -56 Q-6 -47 1 -46 Q9 -46 9 -52 Q4 -53 4 -58 Q8 -69 10 -84 Q0 -88 -10 -84 Z" fill="#4a4a5c"/>
+    <path d="M-7 -73 Q0 -71 7 -73 M-7 -66 Q-1 -64 6 -66 M-6 -60 Q-1 -58 5 -60" stroke="#5f5f74" stroke-width="1.6" fill="none"/>
+    <ellipse cx="2" cy="-48.5" rx="2.6" ry="1.6" fill="#15151c"/>
+    <!-- 입 (코 옆 아래) -->
+    <g transform="translate(15 -60)">
+      <path class="m-happy" d="M-4 0 Q0 5 4 0" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path class="m-worry" d="M-4 3 Q0 -2 4 3" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <ellipse class="m-panic" cx="0" cy="2" rx="3.5" ry="4.5" fill="#ffb3c0"/>
     </g>
-    <g transform="translate(-6 0)">${sweat}</g>
-  </g></g>`;
+    ${sweat}
+  </g>`;
 }
 
 // 섬 위 마스코트 이름표
@@ -282,7 +273,7 @@ export function buildScene(el) {
         <g stroke="#8a5a33" stroke-width="4"><path d="M-34 -32 L-48 6 M-22 -32 L-36 6 M-46 -18 H-30 M-44 -4 H-34"/></g>
       </g>
       <!-- 마스코트 타피 -->
-      <g id="mascotMalaysia" class="mascot-wrap" transform="translate(1180 486)">${mascotSVG('malaysia')}${nameTag('말레이맥 타피', '#1d8f82')}</g>
+      <g id="mascotMalaysia" class="mascot-wrap" transform="translate(1190 486)">${mascotSVG('malaysia')}${nameTag('말레이맥 타피', '#1d8f82')}</g>
       <!-- 맹그로브 -->
       ${mangrove(1010, 548)}
       ${mangrove(950, 578)}
