@@ -62,14 +62,23 @@ function wavePath(amp, step) {
   return d + ' L 2100 800 L -400 800 Z';
 }
 
-function fish(x, y, color, flip, dur, delay) {
+// 물고기: 기본 그림은 왼쪽을 바라봄 → 오른쪽으로 헤엄치는 물고기는 좌우 반전
+function fish(x, y, color, rev, dur, delay) {
+  const wag = (0.28 + Math.random() * 0.12).toFixed(2);
+  const bob = (1.1 + Math.random() * 0.6).toFixed(2);
   return `
-  <g class="fish-swim ${flip ? 'rev' : ''}" style="animation-duration:${dur}s;animation-delay:${delay}s">
-    <g transform="translate(${x} ${y}) ${flip ? 'scale(-1 1)' : ''}">
-      <ellipse cx="0" cy="0" rx="22" ry="13" fill="${color}"/>
-      <path d="M18 0 L36 -12 L34 0 L36 12 Z" fill="${color}"/>
-      <circle cx="-10" cy="-3" r="3.5" fill="#fff"/><circle cx="-11" cy="-3" r="2" fill="#222"/>
-      <path d="M-2 -10 Q4 0 -2 10" stroke="#fff" stroke-width="2" fill="none" opacity=".6"/>
+  <g class="fish-swim ${rev ? 'rev' : ''}" style="animation-duration:${dur}s;animation-delay:${delay}s">
+    <g transform="translate(${x} ${y}) ${rev ? '' : 'scale(-1 1)'}">
+      <g class="fish-body" style="animation-duration:${bob}s">
+        <g class="fish-tail" style="animation-duration:${wag}s">
+          <path d="M18 0 Q26 -4 36 -13 Q32 0 36 13 Q26 4 18 0 Z" fill="${color}"/>
+        </g>
+        <ellipse cx="0" cy="0" rx="22" ry="13" fill="${color}"/>
+        <path class="fish-fin" d="M-2 -11 Q6 -22 12 -11 Z" fill="${color}" opacity=".85"/>
+        <path d="M-4 -10 Q3 0 -4 10" stroke="#fff" stroke-width="2" fill="none" opacity=".55"/>
+        <circle cx="-10" cy="-3" r="3.5" fill="#fff"/><circle cx="-11" cy="-3" r="2" fill="#222"/>
+        <circle cx="-19" cy="3" r="1.4" fill="#fff" opacity=".8"/>
+      </g>
     </g>
   </g>`;
 }

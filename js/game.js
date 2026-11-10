@@ -1,4 +1,4 @@
-import { CONFIG, CARDS, COUNTRY, BAD_WORDS } from './data.js';
+import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION } from './data.js';
 import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js';
 import * as store from './store.js';
 import { sfx, setSound, isSoundOn } from './sound.js';
@@ -498,6 +498,9 @@ window.addEventListener('keydown', (e) => {
   buildScene($('#scene'));
   setupScreens();
   const mode = await store.initStore();
-  $('#modeLabel').textContent = mode === 'firebase' ? '온라인 랭킹' : '로컬 랭킹(이 컴퓨터에만 저장)';
+  const ver = $('#versionLabel');
+  ver.textContent = VERSION;
+  // 연결 상태는 화면에 표시하지 않고, 마우스를 올리면만 보이게
+  ver.title = mode === 'firebase' ? '온라인 랭킹 연결됨' : '로컬 랭킹(이 컴퓨터에만 저장)';
   show('start');
 })();

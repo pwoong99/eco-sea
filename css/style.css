@@ -55,6 +55,16 @@ input { font-family: inherit; }
 .fish-swim.rev { animation-name: swimRev; }
 @keyframes swim { from { transform: translateX(0); } to { transform: translateX(1800px); } }
 @keyframes swimRev { from { transform: translateX(0); } to { transform: translateX(-1800px); } }
+/* 물고기 몸 출렁임 + 꼬리 흔들기 */
+.fish-body { transform-box: fill-box; transform-origin: 50% 50%; animation: fishBob 1.3s ease-in-out infinite; }
+@keyframes fishBob {
+  0%, 100% { transform: translateY(-4px) rotate(-4deg); }
+  50% { transform: translateY(4px) rotate(4deg); }
+}
+.fish-tail { transform-box: fill-box; transform-origin: 0% 50%; animation: tailWag .32s ease-in-out infinite alternate; }
+@keyframes tailWag { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
+.fish-fin { transform-box: fill-box; transform-origin: 50% 100%; animation: finFlap .6s ease-in-out infinite alternate; }
+@keyframes finFlap { from { transform: scaleY(.7); } to { transform: scaleY(1.1); } }
 .turtle { animation: turtle 9s ease-in-out infinite alternate; }
 @keyframes turtle { from { transform: translate(-60px, 10px); } to { transform: translate(-260px, -10px); } }
 .bubbles { animation: bubbles 4s ease-in infinite; }
