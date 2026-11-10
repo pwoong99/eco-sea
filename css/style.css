@@ -199,8 +199,8 @@ body.in-game .maker { display: none; }
 .btn-1p { background: linear-gradient(#ffa1ad, var(--ko)); box-shadow: 0 7px 0 var(--ko-dark); }
 .btn-2p { background: linear-gradient(#6fdccf, var(--my)); box-shadow: 0 7px 0 var(--my-dark); }
 .bb-emoji { font-size: clamp(34px, 3.2vw, 56px); }
-.bb-text { font-size: clamp(24px, 2.2vw, 38px); }
-.bb-sub { font-size: clamp(14px, 1.1vw, 18px); opacity: .95; }
+.bb-text { font-size: clamp(29px, 2.64vw, 46px); }
+.bb-sub { font-size: clamp(17px, 1.32vw, 22px); opacity: .95; }
 .link-btn {
   margin-top: 2.6vh; background: rgba(255, 255, 255, .9); padding: 1vh 1.6vw; border-radius: 999px;
   font-size: clamp(16px, 1.4vw, 22px); box-shadow: 0 4px 0 rgba(0, 0, 0, .1);
