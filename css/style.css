@@ -449,3 +449,18 @@ kbd {
 }
 .admin-link:hover { background: #fff; transform: rotate(60deg); }
 .howto-tip b { color: var(--sea); font-weight: normal; }
+
+/* 바다 친구들 추가 애니메이션 */
+.fish-body.slow { animation-name: fishBobSlow; }
+@keyframes fishBobSlow { 0%, 100% { transform: translateY(-6px) rotate(-2deg); } 50% { transform: translateY(6px) rotate(2deg); } }
+.fin-long { transform-box: fill-box; transform-origin: 0% 50%; animation: finWave 1.6s ease-in-out infinite alternate; }
+@keyframes finWave { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+.puff { transform-box: fill-box; transform-origin: 50% 50%; animation: puff 3.2s ease-in-out infinite; }
+@keyframes puff { 0%, 60%, 100% { transform: scale(1); } 75% { transform: scale(1.18); } 88% { transform: scale(1.12); } }
+.jelly { transform-box: fill-box; transform-origin: 50% 0%; animation: jellyBob 2.6s ease-in-out infinite; }
+@keyframes jellyBob {
+  0%, 100% { transform: translateY(14px) scale(1.06, .94); }
+  45% { transform: translateY(-16px) scale(.94, 1.06); }
+}
+.tentacles { transform-box: fill-box; transform-origin: 50% 0%; animation: tentacle 1.3s ease-in-out infinite alternate; }
+@keyframes tentacle { from { transform: skewX(-6deg); } to { transform: skewX(6deg); } }

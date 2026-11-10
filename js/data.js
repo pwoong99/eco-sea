@@ -1,5 +1,5 @@
 // ===== 버전 (수정할 때마다 올리기, 기록은 README.md) =====
-export const VERSION = 'v1.4.0';
+export const VERSION = 'v1.4.1';
 
 // ===== 게임 설정 (여기 숫자만 바꾸면 게임 난이도가 바뀝니다) =====
 export const CONFIG = {

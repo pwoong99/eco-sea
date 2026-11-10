@@ -86,6 +86,93 @@ function wavePath(amp, step) {
   return d + ' L 2100 800 L -400 800 Z';
 }
 
+// 헤엄치는 바다 친구 공통 틀: 그림은 모두 왼쪽을 바라보게 그리고,
+// 오른쪽으로 가는 친구(rev=false)는 좌우 반전
+function swimmer(x, y, rev, dur, delay, body) {
+  return `
+  <g class="fish-swim ${rev ? 'rev' : ''}" style="animation-duration:${dur}s;animation-delay:${delay}s">
+    <g transform="translate(${x} ${y}) ${rev ? '' : 'scale(-1 1)'}">${body}</g>
+  </g>`;
+}
+const rnd = (a, b) => (a + Math.random() * (b - a)).toFixed(2);
+
+// 흰동가리 (주황 + 흰 줄무늬)
+function clownfish(x, y, rev, dur, delay) {
+  return swimmer(x, y, rev, dur, delay, `
+    <g class="fish-body" style="animation-duration:${rnd(1, 1.5)}s">
+      <g class="fish-tail" style="animation-duration:${rnd(.25, .35)}s">
+        <path d="M17 0 Q26 -12 34 -10 Q30 0 34 10 Q26 12 17 0 Z" fill="#ff8a2a" stroke="#2b2b35" stroke-width="2"/>
+      </g>
+      <ellipse cx="0" cy="0" rx="21" ry="12" fill="#ff8a2a" stroke="#2b2b35" stroke-width="2"/>
+      <path d="M-11 -10 Q-7 0 -11 10 L-5 11 Q-1 0 -5 -11 Z" fill="#fff" stroke="#2b2b35" stroke-width="1.5"/>
+      <path d="M3 -12 Q8 0 3 12 L9 11 Q13 0 9 -11 Z" fill="#fff" stroke="#2b2b35" stroke-width="1.5"/>
+      <path class="fish-fin" d="M-4 -11 Q4 -22 12 -10 Z" fill="#ff8a2a" stroke="#2b2b35" stroke-width="1.5"/>
+      <circle cx="-14" cy="-3" r="3.4" fill="#fff"/><circle cx="-15" cy="-3" r="2" fill="#222"/>
+    </g>`);
+}
+
+// 엔젤피시 (키가 큰 마름모 몸 + 긴 지느러미)
+function angelfish(x, y, rev, dur, delay) {
+  return swimmer(x, y, rev, dur, delay, `
+    <g class="fish-body slow" style="animation-duration:${rnd(1.8, 2.4)}s">
+      <g class="fish-tail" style="animation-duration:${rnd(.4, .5)}s">
+        <path d="M14 0 L30 -10 L28 0 L30 10 Z" fill="#7fc8ff"/>
+      </g>
+      <path class="fin-long" d="M-2 -20 Q14 -46 22 -40 Q12 -26 10 -14 Z" fill="#ffd84d"/>
+      <path class="fin-long" d="M-2 20 Q14 46 22 40 Q12 26 10 14 Z" fill="#ffd84d"/>
+      <path d="M-20 0 L0 -24 L16 0 L0 24 Z" fill="#ffe680" stroke="#f0b400" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M-6 -16 L-6 16 M4 -12 L4 12" stroke="#5aa9e6" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="-11" cy="-3" r="3.2" fill="#fff"/><circle cx="-12" cy="-3" r="1.9" fill="#222"/>
+    </g>`);
+}
+
+// 복어 (동글동글 + 가시, 천천히 부풀었다 줄었다)
+function pufferfish(x, y, rev, dur, delay) {
+  const spikes = Array.from({ length: 12 }, (_, i) => {
+    const a = (i / 12) * Math.PI * 2;
+    const x1 = (Math.cos(a) * 18).toFixed(1), y1 = (Math.sin(a) * 18).toFixed(1);
+    const x2 = (Math.cos(a) * 25).toFixed(1), y2 = (Math.sin(a) * 25).toFixed(1);
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#c9a640" stroke-width="2.5" stroke-linecap="round"/>`;
+  }).join('');
+  return swimmer(x, y, rev, dur, delay, `
+    <g class="fish-body" style="animation-duration:${rnd(1.6, 2)}s">
+      <g class="fish-tail" style="animation-duration:${rnd(.3, .4)}s">
+        <path d="M19 0 L30 -8 L30 8 Z" fill="#e6c55a"/>
+      </g>
+      <g class="puff">
+        ${spikes}
+        <circle cx="0" cy="0" r="20" fill="#f3d675"/>
+        <path d="M-18 6 Q0 22 18 6 Q10 18 0 19 Q-10 18 -18 6 Z" fill="#fff6d6"/>
+        <circle cx="-4" cy="-8" r="2.4" fill="#c9a640"/><circle cx="6" cy="-12" r="2" fill="#c9a640"/><circle cx="8" cy="-2" r="2.2" fill="#c9a640"/>
+      </g>
+      <circle cx="-10" cy="-5" r="5" fill="#fff"/><circle cx="-11" cy="-5" r="2.8" fill="#222"/>
+      <ellipse cx="-19" cy="3" rx="2.5" ry="2" fill="#d98a5a"/>
+      <path class="fish-fin" d="M2 2 Q8 -4 12 4 Z" fill="#e6c55a"/>
+    </g>`);
+}
+
+// 해파리 (위아래로 둥실둥실, 천천히 옆으로)
+function jellyfish(x, y, rev, dur, delay) {
+  return `
+  <g class="fish-swim ${rev ? 'rev' : ''}" style="animation-duration:${dur}s;animation-delay:${delay}s">
+    <g transform="translate(${x} ${y})">
+      <g class="jelly" style="animation-duration:${rnd(2.4, 3)}s">
+        <g class="tentacles">
+          <path d="M-12 4 Q-16 16 -11 28 Q-7 40 -12 50" stroke="#ff9fd0" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M-4 6 Q-8 20 -3 32 Q1 44 -3 56" stroke="#ffb8dc" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M4 6 Q8 20 3 32 Q-1 44 3 56" stroke="#ffb8dc" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M12 4 Q16 16 11 28 Q7 40 12 50" stroke="#ff9fd0" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </g>
+        <path d="M-22 4 Q-24 -24 0 -26 Q24 -24 22 4 Q16 0 11 5 Q5 0 0 5 Q-5 0 -11 5 Q-16 0 -22 4 Z" fill="#ffc2e2" opacity=".92" stroke="#ff8ec7" stroke-width="2"/>
+        <ellipse cx="-8" cy="-14" rx="5" ry="3.5" fill="#fff" opacity=".7"/>
+        <circle cx="-7" cy="-6" r="2.4" fill="#5a3550"/><circle cx="7" cy="-6" r="2.4" fill="#5a3550"/>
+        <path d="M-4 -1 Q0 3 4 -1" stroke="#5a3550" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <circle cx="-14" cy="-2" r="3" fill="#ff8ec7" opacity=".6"/><circle cx="14" cy="-2" r="3" fill="#ff8ec7" opacity=".6"/>
+      </g>
+    </g>
+  </g>`;
+}
+
 // 물고기: 기본 그림은 왼쪽을 바라봄 → 오른쪽으로 헤엄치는 물고기는 좌우 반전
 function fish(x, y, color, rev, dur, delay) {
   const wag = (0.28 + Math.random() * 0.12).toFixed(2);
@@ -283,10 +370,13 @@ export function buildScene(el) {
     <g id="water" class="water-move">
       <g class="wave-slide"><path d="${wavePath(14, 100)}" fill="url(#gSea)"/></g>
       <g class="wave-slide"><path d="${wavePath(6, 100).replace(' L 2100 800 L -400 800 Z', '')}" stroke="#d8f6ff" stroke-width="4" fill="none" opacity=".8" transform="translate(0 4)"/></g>
-      ${fish(-80, 110, '#ffb347', false, 26, 0)}
-      ${fish(1700, 170, '#ff7fa8', true, 32, -8)}
-      ${fish(-80, 230, '#ffe066', false, 38, -20)}
-      ${fish(1700, 90, '#7ad7a8', true, 29, -15)}
+      <!-- 바다 친구들 (거북이 포함 7마리) -->
+      ${fish(-80, 95, '#ffb347', false, 26, 0)}
+      ${fish(1700, 250, '#7ad7a8', true, 31, -15)}
+      ${clownfish(-80, 175, false, 34, -12)}
+      ${angelfish(1700, 125, true, 40, -26)}
+      ${pufferfish(-80, 265, false, 46, -30)}
+      ${jellyfish(1700, 205, true, 70, -40)}
       <!-- 바다거북 -->
       <!-- 바다거북: 머리가 왼쪽, 왼쪽으로 헤엄치며 앞지느러미로 노 젓기 -->
       <g class="turtle-swim"><g transform="translate(1750 150) rotate(-90)">

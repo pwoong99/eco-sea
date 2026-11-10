@@ -1,5 +1,5 @@
-import * as store from './store.js?v=1.4.0';
-import { CONFIG, LIMITS } from './data.js?v=1.4.0';
+import * as store from './store.js?v=1.4.1';
+import { CONFIG, LIMITS } from './data.js?v=1.4.1';
 
 const $ = (s) => document.querySelector(s);
 const NAME = { korea: '한국', malaysia: '말레이시아' };
