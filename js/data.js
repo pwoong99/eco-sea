@@ -1,10 +1,10 @@
 // ===== 버전 (수정할 때마다 올리기, 기록은 README.md) =====
-export const VERSION = 'v1.3.1';
+export const VERSION = 'v1.3.2';
 
 // ===== 게임 설정 (여기 숫자만 바꾸면 게임 난이도가 바뀝니다) =====
 export const CONFIG = {
   ROUNDS: 10,            // 한 판 라운드 수 (최대 20)
-  ROUND_MS: 6000,        // 한 라운드 제한 시간 (밀리초)
+  ROUND_MS: 8000,        // 한 라운드 제한 시간 (밀리초)
   START_LEVEL: 40,       // 시작 해수면 (0 = 아주 낮음, 100 = 마을이 잠김)
   DELTA: {
     both: -7,            // 두 나라 모두 실천 → 해수면 내려감

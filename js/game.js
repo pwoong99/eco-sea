@@ -1,7 +1,7 @@
-import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION } from './data.js?v=1.3.1';
-import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.3.1';
-import * as store from './store.js?v=1.3.1';
-import { sfx, setSound, isSoundOn } from './sound.js?v=1.3.1';
+import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION } from './data.js?v=1.3.2';
+import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.3.2';
+import * as store from './store.js?v=1.3.2';
+import { sfx, setSound, isSoundOn } from './sound.js?v=1.3.2';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
