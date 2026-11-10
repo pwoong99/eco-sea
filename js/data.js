@@ -1,10 +1,10 @@
 // ===== 버전 (수정할 때마다 올리기, 기록은 README.md) =====
-export const VERSION = 'v1.3.2';
+export const VERSION = 'v1.4.0';
 
 // ===== 게임 설정 (여기 숫자만 바꾸면 게임 난이도가 바뀝니다) =====
 export const CONFIG = {
-  ROUNDS: 10,            // 한 판 라운드 수 (최대 20)
-  ROUND_MS: 8000,        // 한 라운드 제한 시간 (밀리초)
+  ROUNDS: 10,            // 한 판 문제 수 기본값 (관리자 페이지에서 3~20 사이로 변경 가능)
+  ROUND_MS: 8000,        // 한 문제 제한 시간 기본값 (관리자 페이지에서 3~20초 사이로 변경 가능)
   START_LEVEL: 40,       // 시작 해수면 (0 = 아주 낮음, 100 = 마을이 잠김)
   DELTA: {
     both: -7,            // 두 나라 모두 실천 → 해수면 내려감
@@ -15,6 +15,18 @@ export const CONFIG = {
   IDLE_RETURN_MS: 90000, // 결과·랭킹 화면에서 아무 입력 없으면 처음으로 (부스용)
   NICK_MAX: 8
 };
+
+// 관리자 설정 허용 범위
+export const LIMITS = { secMin: 3, secMax: 20, roundsMin: 3, roundsMax: 20 };
+
+// 관리자 설정 값을 CONFIG에 반영 (범위를 벗어나면 잘라냄)
+export function applySettings(s) {
+  if (!s) return;
+  const sec = Math.round(Number(s.roundSec));
+  const r = Math.round(Number(s.rounds));
+  if (sec >= LIMITS.secMin && sec <= LIMITS.secMax) CONFIG.ROUND_MS = sec * 1000;
+  if (r >= LIMITS.roundsMin && r <= LIMITS.roundsMax) CONFIG.ROUNDS = r;
+}
 
 export const COUNTRY = {
   korea:    { name: '한국',     mascot: '반디', mascotDesc: '아기 반달가슴곰', color: '#ff7a8a' },

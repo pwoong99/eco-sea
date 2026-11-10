@@ -1,7 +1,7 @@
-import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION } from './data.js?v=1.3.2';
-import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.3.2';
-import * as store from './store.js?v=1.3.2';
-import { sfx, setSound, isSoundOn } from './sound.js?v=1.3.2';
+import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION, applySettings } from './data.js?v=1.4.0';
+import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.4.0';
+import * as store from './store.js?v=1.4.0';
+import { sfx, setSound, isSoundOn } from './sound.js?v=1.4.0';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -141,7 +141,16 @@ function setupScreens() {
   });
 }
 
-function openHowto() {
+// 관리자 설정을 다시 불러와 반영 (게임 시작 전마다 → 새로고침 없이 바뀐 설정 적용)
+async function refreshSettings() {
+  applySettings(await store.getSettings());
+  $('#howtoTip').innerHTML =
+    `⏱ 한 문제에 <b>${CONFIG.ROUND_MS / 1000}초</b>, 모두 <b>${CONFIG.ROUNDS}문제</b>예요. ` +
+    '시간 안에 고르지 못하면 실천하지 않은 것으로 쳐요. 빨리 고를수록 점수가 더 높아요!';
+}
+
+async function openHowto() {
+  await refreshSettings();
   if (S.mode === '1p') {
     const me = S.human.korea ? 'korea' : 'malaysia';
     const keys = me === 'korea' ? '<kbd>A</kbd> <kbd>D</kbd>' : '<kbd>←</kbd> <kbd>→</kbd>';
@@ -498,6 +507,7 @@ window.addEventListener('keydown', (e) => {
   buildScene($('#scene'));
   setupScreens();
   const mode = await store.initStore();
+  await refreshSettings();
   const ver = $('#versionLabel');
   ver.textContent = VERSION;
   // 연결 상태는 화면에 표시하지 않고, 마우스를 올리면만 보이게

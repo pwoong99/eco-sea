@@ -1,6 +1,6 @@
 // ===== 랭킹 저장소 =====
 // firebase-config.js가 채워져 있으면 Firestore, 아니면 이 브라우저(localStorage)에 저장합니다.
-import { FIREBASE_CONFIG } from './firebase-config.js?v=1.3.2';
+import { FIREBASE_CONFIG } from './firebase-config.js?v=1.4.0';
 
 const BASE = 'https://www.gstatic.com/firebasejs/10.12.2/';
 const LS_R = 'ecoSea.rankings';
@@ -180,6 +180,29 @@ export async function deleteAllEntries(onlyToday = false) {
   const keep = onlyToday ? list.filter(r => r.dateKey !== todayKey()) : [];
   lsSet(LS_R, keep);
   return list.length - keep.length;
+}
+
+// ---------- 게임 설정 (관리자가 바꾸는 값) ----------
+const LS_SET = 'ecoSea.settings';
+
+// { roundSec, rounds } — 저장된 값이 없거나 읽기 실패 시 null
+export async function getSettings() {
+  try {
+    if (mode === 'firebase') {
+      const s = await F.getDoc(F.doc(db, 'settings', 'game'));
+      return s.exists() ? s.data() : null;
+    }
+    return lsGet(LS_SET, null);
+  } catch (e) {
+    console.warn('설정 불러오기 실패 → 기본값 사용', e);
+    return null;
+  }
+}
+
+export async function saveSettings(v) {
+  const data = { roundSec: v.roundSec, rounds: v.rounds };
+  if (mode === 'firebase') return F.setDoc(F.doc(db, 'settings', 'game'), data);
+  lsSet(LS_SET, data);
 }
 
 export async function resetStats() {

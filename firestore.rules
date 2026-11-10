@@ -40,6 +40,15 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // 게임 설정(제한 시간·문제 수): 누구나 읽기 / 관리자만 저장
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.data.keys().hasOnly(['roundSec', 'rounds'])
+        && request.resource.data.roundSec is int && request.resource.data.roundSec >= 3 && request.resource.data.roundSec <= 20
+        && request.resource.data.rounds is int && request.resource.data.rounds >= 3 && request.resource.data.rounds <= 20;
+    }
+
     // 나라별 누적 실천 수
     match /stats/{docId} {
       allow read: if true;
