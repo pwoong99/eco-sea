@@ -70,10 +70,18 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // 나라별 누적 실천 수
+    function validVisits() {
+      let n = request.resource.data;
+      let o = resource == null ? {} : resource.data;
+      return n.keys().hasOnly(['count']) && n.count is int && n.count == o.get('count', 0) + 1;
+    }
+
+    // 나라별 누적 실천 수(global) · 사이트 접속 수(visits)
     match /stats/{docId} {
       allow read: if true;
-      allow create, update: if isAdmin() || (docId == 'global' && validStats());
+      allow create, update: if isAdmin()
+        || (docId == 'global' && validStats())
+        || (docId == 'visits' && validVisits());
       allow delete: if isAdmin();
     }
   }

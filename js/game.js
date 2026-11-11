@@ -1,8 +1,8 @@
-import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION, applySettings, milestonesBetween } from './data.js?v=1.5.0';
-import { startFireworks, stopFireworks } from './fireworks.js?v=1.5.0';
-import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.5.0';
-import * as store from './store.js?v=1.5.0';
-import { sfx, setSound, isSoundOn } from './sound.js?v=1.5.0';
+import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION, applySettings, milestonesBetween } from './data.js?v=1.5.1';
+import { startFireworks, stopFireworks } from './fireworks.js?v=1.5.1';
+import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.5.1';
+import * as store from './store.js?v=1.5.1';
+import { sfx, setSound, isSoundOn } from './sound.js?v=1.5.1';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -57,12 +57,17 @@ function resetIdle() {
 
 // ---------- 시작 화면 통계 ----------
 async function refreshStats() {
+  refreshVisitors();
   try {
     const s = await store.getStats();
     $('#statsBanner').innerHTML = (s.korea + s.malaysia) > 0
       ? `지금까지 한국 친구들 <b>${s.korea}</b>번 · 말레이시아 친구들 <b>${s.malaysia}</b>번 환경을 지켰어요!`
       : '첫 번째 환경지킴이가 되어 보세요! 🌱';
   } catch (e) { $('#statsBanner').textContent = ''; }
+}
+
+async function refreshVisitors() {
+  try { $('#visitCount').textContent = (await store.getVisitors()).toLocaleString(); } catch (e) { /* 무시 */ }
 }
 
 // ---------- 별명 확인 ----------
@@ -573,6 +578,7 @@ window.addEventListener('keydown', (e) => {
   buildScene($('#scene'));
   setupScreens();
   const mode = await store.initStore();
+  await store.countVisit();
   await refreshSettings();
   const ver = $('#versionLabel');
   ver.textContent = VERSION;

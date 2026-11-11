@@ -442,7 +442,7 @@ kbd {
 
 /* 관리자 페이지 바로가기 (버전 오른쪽) */
 .admin-link {
-  display: inline-flex; align-items: center; justify-content: center; margin-left: 4px;
+  display: inline-flex; align-items: center; justify-content: center; margin-right: 4px;
   width: 1.9em; height: 1.9em; border-radius: 50%; text-decoration: none; font-size: 1em;
   background: rgba(255, 255, 255, .75); box-shadow: 0 2px 0 rgba(0, 0, 0, .1);
   transition: background .15s, transform .3s; vertical-align: middle;
@@ -505,3 +505,5 @@ kbd {
 .prize-name small { font-size: .55em; opacity: .8; }
 .prize-msg { font-size: clamp(18px, 1.7vw, 28px); color: #5a6782; margin-bottom: 2vh; min-height: 1em; }
 .prize-msg:empty { display: none; }
+
+#visitLabel b { font-weight: normal; color: var(--ink); }

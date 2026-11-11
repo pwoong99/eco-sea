@@ -1,5 +1,5 @@
-import * as store from './store.js?v=1.5.0';
-import { CONFIG, LIMITS, cleanPrizeList, nextMilestone } from './data.js?v=1.5.0';
+import * as store from './store.js?v=1.5.1';
+import { CONFIG, LIMITS, cleanPrizeList, nextMilestone } from './data.js?v=1.5.1';
 
 const $ = (s) => document.querySelector(s);
 const NAME = { korea: '한국', malaysia: '말레이시아' };
@@ -17,14 +17,15 @@ function msg(t) { $('#adminMsg').textContent = t; }
 async function load() {
   msg('');
   try {
-    const [st, list] = await Promise.all([store.getStats(), store.listEntries()]);
+    const [st, list, visitors] = await Promise.all([store.getStats(), store.listEntries(), store.getVisitors().catch(() => '-')]);
     const today = store.todayKey();
     const todayCount = list.filter(r => r.dateKey === today).length;
     $('#stats').innerHTML = `
       <div class="stat">한국 누적 실천<b>${st.korea}</b></div>
       <div class="stat">말레이시아 누적 실천<b>${st.malaysia}</b></div>
       <div class="stat">플레이 횟수<b>${st.plays}</b></div>
-      <div class="stat">오늘 기록<b>${todayCount}</b></div>`;
+      <div class="stat">오늘 기록<b>${todayCount}</b></div>
+      <div class="stat">방문자 수<b>${visitors}</b></div>`;
     const rows = $('#onlyToday').checked ? list.filter(r => r.dateKey === today) : list;
     $('#rows').innerHTML = rows.length ? rows.map(r => `
       <tr>

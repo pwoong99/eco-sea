@@ -1,6 +1,6 @@
 // ===== 랭킹 저장소 =====
 // firebase-config.js가 채워져 있으면 Firestore, 아니면 이 브라우저(localStorage)에 저장합니다.
-import { FIREBASE_CONFIG } from './firebase-config.js?v=1.5.0';
+import { FIREBASE_CONFIG } from './firebase-config.js?v=1.5.1';
 
 const BASE = 'https://www.gstatic.com/firebasejs/10.12.2/';
 const LS_R = 'ecoSea.rankings';
@@ -130,6 +130,39 @@ export async function getStats() {
     return { korea: 0, malaysia: 0, plays: 0, ...(s.exists() ? s.data() : {}) };
   }
   return lsGet(LS_S, { korea: 0, malaysia: 0, plays: 0 });
+}
+
+// ---------- 방문자 수 ----------
+// 방문자 수 = 사이트 접속 횟수(stats/visits.count) + 게임 플레이 횟수(stats/global.plays)
+const LS_V = 'ecoSea.visits';
+
+// 이 브라우저 탭에서 처음 열었을 때만 접속 1회로 셈 (새로고침은 제외)
+export async function countVisit() {
+  try {
+    if (sessionStorage.getItem('ecoSea.visited')) return;
+    sessionStorage.setItem('ecoSea.visited', '1');
+  } catch (e) { /* 무시 */ }
+  try {
+    if (mode === 'firebase') {
+      await F.setDoc(F.doc(db, 'stats', 'visits'), { count: F.increment(1) }, { merge: true });
+    } else {
+      lsSet(LS_V, (lsGet(LS_V, 0) || 0) + 1);
+    }
+  } catch (e) { console.warn('방문 기록 실패', e); }
+}
+
+export async function getVisitors() {
+  const st = await getStats();
+  let visits = 0;
+  if (mode === 'firebase') {
+    try {
+      const v = await F.getDoc(F.doc(db, 'stats', 'visits'));
+      visits = v.exists() ? (v.data().count || 0) : 0;
+    } catch (e) { visits = 0; }
+  } else {
+    visits = lsGet(LS_V, 0) || 0;
+  }
+  return visits + (st.plays || 0);
 }
 
 // ---------- 관리자 ----------
