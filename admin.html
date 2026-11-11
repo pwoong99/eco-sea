@@ -35,6 +35,17 @@
     .set-val { width: 70px; text-align: right; font-weight: normal; color: #2f8fd0; font-size: 22px; }
     .set-est { color: #6b7890; margin: 4px 0 12px; }
     .msg.ok { color: #1f9a5c; }
+    .sub-h { font-weight: normal; font-size: 20px; margin: 22px 0 6px; padding-top: 16px; border-top: 2px dashed #e3ebf5; }
+    .hint { color: #6b7890; margin-bottom: 6px; } .hint b { color: #e0566a; font-weight: normal; }
+    .hint-inline { color: #6b7890; font-size: 15px; }
+    .set-row input.wide { flex: 1; width: auto; }
+    .set-row input.num { width: 110px; }
+    .set-row label.switch, .switch { position: relative; width: 56px; flex: 0 0 56px; height: 30px; display: inline-block; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch span { position: absolute; inset: 0; background: #cfd8e3; border-radius: 999px; transition: .2s; cursor: pointer; }
+    .switch span::before { content: ''; position: absolute; width: 24px; height: 24px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+    .switch input:checked + span { background: #34c27a; }
+    .switch input:checked + span::before { transform: translateX(26px); }
   </style>
 </head>
 <body>
@@ -65,9 +76,31 @@
           <b id="setRoundsVal" class="set-val"></b>
         </div>
         <p class="set-est" id="setEst"></p>
+
+        <h3 class="sub-h">🎉 누적 실천 당첨 이벤트</h3>
+        <p class="hint">한국·말레이시아 친구들의 <b>누적 실천 수</b>가 정한 숫자를 넘기는 판에서, 그 판을 한 친구에게 당첨 축하 화면이 떠요.</p>
+        <div class="set-row">
+          <label for="prizeOn">사용</label>
+          <label class="switch"><input type="checkbox" id="prizeOn"><span></span></label>
+          <span id="prizeOnTxt" class="hint-inline"></span>
+        </div>
+        <div class="set-row">
+          <label for="prizeList">당첨 숫자</label>
+          <input id="prizeList" type="text" placeholder="예: 50, 100, 200" class="wide">
+        </div>
+        <div class="set-row">
+          <label for="prizeEvery">그 뒤로 반복</label>
+          <input id="prizeEvery" type="number" min="0" max="100000" step="10" class="num"> <span class="hint-inline">개마다 계속 당첨 (0이면 반복 안 함)</span>
+        </div>
+        <div class="set-row">
+          <label for="prizeMsg">안내 문구</label>
+          <input id="prizeMsg" type="text" maxlength="60" class="wide" placeholder="예: 부스 선생님께 와서 선물을 받아 가세요!">
+        </div>
+        <p class="set-est" id="prizePreview"></p>
         <div>
           <button id="btnSaveSet">💾 설정 저장</button>
-          <button class="gray" id="btnDefaultSet">기본값 (8초 · 10문제)</button>
+          <button class="gray" id="btnDefaultSet">기본값으로</button>
+          <button class="gray" id="btnPrizeTest">🎉 축하 화면 미리보기</button>
         </div>
         <p class="msg ok" id="setMsg"></p>
       </div>
@@ -85,6 +118,14 @@
       </div>
 
       <div class="box">
+        <h2>🏅 당첨 기록 <small style="color:#8a96a8">(최근 순)</small></h2>
+        <table>
+          <thead><tr><th>시간</th><th>당첨 숫자</th><th>별명</th><th>나라</th><th>모드</th><th></th></tr></thead>
+          <tbody id="prizeRows"></tbody>
+        </table>
+      </div>
+
+      <div class="box">
         <h2>📋 기록 목록 <small style="color:#8a96a8">(최근 순, 부적절한 별명은 삭제하세요)</small></h2>
         <div class="filter">
           <label><input type="checkbox" id="onlyToday" checked style="width:auto"> 오늘 기록만 보기</label>
@@ -98,6 +139,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/admin.js?v=1.4.2"></script>
+  <script type="module" src="js/admin.js?v=1.5.0"></script>
 </body>
 </html>

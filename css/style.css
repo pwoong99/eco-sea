@@ -464,3 +464,44 @@ kbd {
 }
 .tentacles { transform-box: fill-box; transform-origin: 50% 0%; animation: tentacle 1.3s ease-in-out infinite alternate; }
 @keyframes tentacle { from { transform: skewX(-6deg); } to { transform: skewX(6deg); } }
+
+/* ===== 누적 실천 당첨 축하 화면 ===== */
+.prize-overlay {
+  position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 50% 45%, rgba(20, 40, 90, .55), rgba(10, 20, 50, .82));
+}
+.prize-overlay.show { display: flex; animation: fadeIn .3s ease; }
+#fireworks { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.prize-card {
+  position: relative; z-index: 2; text-align: center;
+  background: linear-gradient(#fffdf3, #fff3c9); border: 6px solid #ffd23f; border-radius: 40px;
+  padding: 3vh 4vw 3.4vh; width: min(760px, 88vw);
+  box-shadow: 0 0 0 8px rgba(255, 210, 63, .35), 0 20px 60px rgba(0, 0, 0, .35);
+  animation: prizePop .7s cubic-bezier(.2, 1.6, .4, 1);
+}
+@keyframes prizePop { 0% { transform: scale(.2) rotate(-8deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+.prize-ribbon {
+  display: inline-block; margin-top: -7vh; margin-bottom: 1vh;
+  background: linear-gradient(#ff7a8a, #e0566a); color: #fff; padding: 1vh 3vw; border-radius: 999px;
+  font-size: clamp(28px, 3vw, 50px); box-shadow: 0 6px 0 #b83a4e; animation: ribbon 1s ease-in-out infinite;
+}
+@keyframes ribbon { 0%, 100% { transform: rotate(-3deg) scale(1); } 50% { transform: rotate(3deg) scale(1.06); } }
+.prize-sub { font-size: clamp(16px, 1.4vw, 22px); color: #8a6d1d; }
+.prize-num { margin: .4vh 0; color: #e0566a; font-size: clamp(22px, 2vw, 34px); }
+.prize-num b {
+  font-weight: normal; font-size: clamp(70px, 9vw, 150px); line-height: 1; display: inline-block;
+  color: #ff9a1f; -webkit-text-stroke: 3px #e0566a; text-shadow: 0 6px 0 #e0566a, 0 12px 24px rgba(224, 86, 106, .35);
+  animation: numBounce 1.2s ease-in-out infinite;
+}
+@keyframes numBounce { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(1.05); } }
+.prize-title { font-size: clamp(26px, 2.6vw, 44px); color: var(--ink); margin-bottom: 1.4vh; }
+.prize-names { display: flex; gap: 1vw; justify-content: center; flex-wrap: wrap; margin-bottom: 1.2vh; }
+.prize-name {
+  display: inline-flex; align-items: center; gap: .5vw; padding: .8vh 1.6vw; border-radius: 999px;
+  font-size: clamp(22px, 2.2vw, 36px); background: #fff; border: 4px solid;
+}
+.prize-name.korea { border-color: var(--ko); color: var(--ko-dark); }
+.prize-name.malaysia { border-color: var(--my); color: var(--my-dark); }
+.prize-name small { font-size: .55em; opacity: .8; }
+.prize-msg { font-size: clamp(18px, 1.7vw, 28px); color: #5a6782; margin-bottom: 2vh; min-height: 1em; }
+.prize-msg:empty { display: none; }

@@ -38,6 +38,7 @@ export const sfx = {
   count()  { tone(880, 0.15, 'triangle', 0.15); },
   go()     { tone(1320, 0.3, 'triangle', 0.15); },
   fanfare(){ [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, 0.22, 'triangle', 0.14, i * 0.13)); },
+  pop()    { tone(140 + Math.random() * 80, 0.18, 'triangle', 0.09, 0, 60); tone(1800 + Math.random() * 900, 0.12, 'sine', 0.03, 0.03, 600); },
   sad()    { [392, 349, 311, 262].forEach((f, i) => tone(f, 0.3, 'sine', 0.12, i * 0.2)); }
 };
 

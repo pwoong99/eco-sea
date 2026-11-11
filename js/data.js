@@ -1,5 +1,5 @@
 // ===== 버전 (수정할 때마다 올리기, 기록은 README.md) =====
-export const VERSION = 'v1.4.2';
+export const VERSION = 'v1.5.0';
 
 // ===== 게임 설정 (여기 숫자만 바꾸면 게임 난이도가 바뀝니다) =====
 export const CONFIG = {
@@ -13,7 +13,14 @@ export const CONFIG = {
   },
   CPU_GOOD_RATE: 0.7,    // 1인 모드에서 컴퓨터 친구가 실천할 확률
   IDLE_RETURN_MS: 90000, // 결과·랭킹 화면에서 아무 입력 없으면 처음으로 (부스용)
-  NICK_MAX: 8
+  NICK_MAX: 8,
+  // 누적 실천 수 당첨 이벤트 기본값 (관리자 페이지에서 변경)
+  PRIZE: {
+    on: true,                 // 사용 여부
+    list: [50, 100, 200],     // 당첨 숫자
+    every: 100,               // 마지막 당첨 숫자 뒤로 이 간격마다 계속 당첨 (0이면 반복 없음)
+    msg: '부스 선생님께 와서 선물을 받아 가세요!'
+  }
 };
 
 // 관리자 설정 허용 범위
@@ -26,6 +33,40 @@ export function applySettings(s) {
   const r = Math.round(Number(s.rounds));
   if (sec >= LIMITS.secMin && sec <= LIMITS.secMax) CONFIG.ROUND_MS = sec * 1000;
   if (r >= LIMITS.roundsMin && r <= LIMITS.roundsMax) CONFIG.ROUNDS = r;
+  if (typeof s.prizeOn === 'boolean') CONFIG.PRIZE.on = s.prizeOn;
+  if (Array.isArray(s.prizeList)) CONFIG.PRIZE.list = cleanPrizeList(s.prizeList);
+  if (Number.isInteger(s.prizeEvery) && s.prizeEvery >= 0) CONFIG.PRIZE.every = s.prizeEvery;
+  if (typeof s.prizeMsg === 'string') CONFIG.PRIZE.msg = s.prizeMsg;
+}
+
+// "50, 100, 200" 같은 입력을 정리 → [50, 100, 200] (중복 제거·오름차순·양의 정수만)
+export function cleanPrizeList(v) {
+  const arr = Array.isArray(v) ? v : String(v).split(/[^0-9]+/);
+  return [...new Set(arr.map(Number).filter(n => Number.isInteger(n) && n > 0 && n <= 1000000))].sort((a, b) => a - b).slice(0, 30);
+}
+
+// 누적 실천 수가 before → after 로 늘어날 때 지나간 당첨 숫자들
+export function milestonesBetween(before, after, prize = CONFIG.PRIZE) {
+  if (!prize.on || after <= before) return [];
+  const hit = prize.list.filter(m => m > before && m <= after);
+  if (prize.every > 0) {
+    const base = prize.list.length ? prize.list[prize.list.length - 1] : 0;
+    for (let m = base + prize.every; m <= after; m += prize.every) if (m > before) hit.push(m);
+  }
+  return hit;
+}
+
+// 지금 누적 수 다음에 오는 당첨 숫자 (없으면 null)
+export function nextMilestone(total, prize = CONFIG.PRIZE) {
+  if (!prize.on) return null;
+  const n = prize.list.find(m => m > total);
+  if (n) return n;
+  if (prize.every > 0) {
+    const base = prize.list.length ? prize.list[prize.list.length - 1] : 0;
+    if (total < base) return base;
+    return base + (Math.floor((total - base) / prize.every) + 1) * prize.every;
+  }
+  return null;
 }
 
 export const COUNTRY = {

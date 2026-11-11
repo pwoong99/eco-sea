@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=1.4.2">
+  <link rel="stylesheet" href="css/style.css?v=1.5.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌊</text></svg>">
 </head>
 <body>
@@ -166,8 +166,22 @@
     </div>
   </section>
 
+  <!-- 누적 실천 당첨 축하 화면 -->
+  <div id="prizeOverlay" class="prize-overlay" aria-hidden="true">
+    <canvas id="fireworks"></canvas>
+    <div class="prize-card">
+      <div class="prize-ribbon">🎉 당첨! 🎉</div>
+      <div class="prize-sub">모두 함께 지킨 바다</div>
+      <div class="prize-num"><span>누적</span> <b id="prizeNum">0</b><span>번째</span></div>
+      <div class="prize-title">환경 실천의 주인공!</div>
+      <div class="prize-names" id="prizeNames"></div>
+      <p class="prize-msg" id="prizeMsg"></p>
+      <button class="main-btn" id="prizeClose">확인 <small>(Enter)</small></button>
+    </div>
+  </div>
+
   <div class="maker">만든이: 푸르이든 · <span id="versionLabel"></span> <a href="admin.html" class="admin-link" title="관리자 페이지">⚙️</a></div>
 
-  <script type="module" src="js/game.js?v=1.4.2"></script>
+  <script type="module" src="js/game.js?v=1.5.0"></script>
 </body>
 </html>

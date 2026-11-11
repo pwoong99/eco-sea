@@ -40,13 +40,34 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // 게임 설정(제한 시간·문제 수): 누구나 읽기 / 관리자만 저장
+    // 게임 설정(제한 시간·문제 수·당첨 이벤트): 누구나 읽기 / 관리자만 저장
     match /settings/{docId} {
       allow read: if true;
-      allow write: if isAdmin()
-        && request.resource.data.keys().hasOnly(['roundSec', 'rounds'])
-        && request.resource.data.roundSec is int && request.resource.data.roundSec >= 3 && request.resource.data.roundSec <= 20
-        && request.resource.data.rounds is int && request.resource.data.rounds >= 3 && request.resource.data.rounds <= 20;
+      allow write: if isAdmin() && validSettings(request.resource.data);
+    }
+
+    function validSettings(d) {
+      return d.keys().hasOnly(['roundSec', 'rounds', 'prizeOn', 'prizeList', 'prizeEvery', 'prizeMsg'])
+        && d.roundSec is int && d.roundSec >= 3 && d.roundSec <= 20
+        && d.rounds is int && d.rounds >= 3 && d.rounds <= 20
+        && (!('prizeOn' in d) || d.prizeOn is bool)
+        && (!('prizeList' in d) || (d.prizeList is list && d.prizeList.size() <= 30))
+        && (!('prizeEvery' in d) || (d.prizeEvery is int && d.prizeEvery >= 0 && d.prizeEvery <= 100000))
+        && (!('prizeMsg' in d) || (d.prizeMsg is string && d.prizeMsg.size() <= 60));
+    }
+
+    // 누적 실천 당첨 기록: 누구나 보기 / 형식에 맞는 기록만 추가 / 삭제는 관리자만
+    match /prizes/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['milestone', 'total', 'mode', 'nickname', 'country', 'createdAt'])
+        && request.resource.data.milestone is int && request.resource.data.milestone > 0
+        && request.resource.data.total is int && request.resource.data.total >= request.resource.data.milestone
+        && request.resource.data.mode in ['1p', '2p']
+        && request.resource.data.nickname is string && request.resource.data.nickname.size() <= 20
+        && request.resource.data.country is string && request.resource.data.country.size() <= 20
+        && request.resource.data.createdAt == request.time;
+      allow update: if false;
+      allow delete: if isAdmin();
     }
 
     // 나라별 누적 실천 수

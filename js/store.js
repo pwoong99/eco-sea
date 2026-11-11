@@ -1,6 +1,6 @@
 // ===== 랭킹 저장소 =====
 // firebase-config.js가 채워져 있으면 Firestore, 아니면 이 브라우저(localStorage)에 저장합니다.
-import { FIREBASE_CONFIG } from './firebase-config.js?v=1.4.2';
+import { FIREBASE_CONFIG } from './firebase-config.js?v=1.5.0';
 
 const BASE = 'https://www.gstatic.com/firebasejs/10.12.2/';
 const LS_R = 'ecoSea.rankings';
@@ -200,9 +200,39 @@ export async function getSettings() {
 }
 
 export async function saveSettings(v) {
-  const data = { roundSec: v.roundSec, rounds: v.rounds };
+  const data = {
+    roundSec: v.roundSec, rounds: v.rounds,
+    prizeOn: !!v.prizeOn, prizeList: v.prizeList, prizeEvery: v.prizeEvery, prizeMsg: v.prizeMsg
+  };
   if (mode === 'firebase') return F.setDoc(F.doc(db, 'settings', 'game'), data);
   lsSet(LS_SET, data);
+}
+
+// ---------- 당첨 기록 ----------
+const LS_P = 'ecoSea.prizes';
+
+// { milestone, total, nickname(들), country, mode }
+export async function savePrize(p) {
+  if (mode === 'firebase') {
+    return F.addDoc(F.collection(db, 'prizes'), { ...p, createdAt: F.serverTimestamp() });
+  }
+  const list = lsGet(LS_P, []);
+  list.push({ id: 'P' + Date.now().toString(36), ...p, createdAt: Date.now() });
+  lsSet(LS_P, list);
+}
+
+export async function listPrizes() {
+  if (mode === 'firebase') {
+    const q = F.query(F.collection(db, 'prizes'), F.orderBy('createdAt', 'desc'), F.limit(200));
+    const snap = await F.getDocs(q);
+    return snap.docs.map(d => normalize(d.id, d.data()));
+  }
+  return lsGet(LS_P, []).map(r => normalize(r.id, r)).sort((a, b) => b.createdAtMs - a.createdAtMs);
+}
+
+export async function deletePrize(id) {
+  if (mode === 'firebase') return F.deleteDoc(F.doc(db, 'prizes', id));
+  lsSet(LS_P, lsGet(LS_P, []).filter(r => r.id !== id));
 }
 
 export async function resetStats() {

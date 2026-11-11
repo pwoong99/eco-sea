@@ -1,7 +1,8 @@
-import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION, applySettings } from './data.js?v=1.4.2';
-import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.4.2';
-import * as store from './store.js?v=1.4.2';
-import { sfx, setSound, isSoundOn } from './sound.js?v=1.4.2';
+import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION, applySettings, milestonesBetween } from './data.js?v=1.5.0';
+import { startFireworks, stopFireworks } from './fireworks.js?v=1.5.0';
+import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.5.0';
+import * as store from './store.js?v=1.5.0';
+import { sfx, setSound, isSoundOn } from './sound.js?v=1.5.0';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -34,6 +35,7 @@ const S = {
 
 // ---------- 화면 전환 ----------
 function show(name) {
+  if (prizeOpen && name !== 'result') closePrize();
   $$('.screen').forEach(el => el.classList.toggle('active', el.id === 'scr-' + name));
   current = name;
   document.body.classList.toggle('in-game', name === 'game');
@@ -442,6 +444,7 @@ async function endGame() {
   try {
     const ids = await store.saveEntries(entries);
     lastSaved = { ids, period: 'today' };
+    checkPrize(entries); // 누적 실천 당첨 확인 (랭킹 표시와 따로 진행)
     for (const e of entries) {
       const r = await store.getRanks(e.score);
       const el = $('#rank-' + e.country);
@@ -451,6 +454,65 @@ async function endGame() {
     console.error(err);
     SIDES.forEach(s => { const el = $('#rank-' + s); if (el && S.human[s]) el.textContent = '⚠️ 랭킹 저장에 실패했어요 (인터넷 확인)'; });
   }
+}
+
+
+// ---------- 누적 실천 당첨 ----------
+async function checkPrize(entries) {
+  if (!CONFIG.PRIZE.on) return;
+  const mine = entries.reduce((a, e) => a + e.actions, 0);
+  if (mine <= 0) return;
+  try {
+    const st = await store.getStats();
+    const after = (st.korea || 0) + (st.malaysia || 0);
+    const before = after - mine;
+    const hits = milestonesBetween(before, after);
+    if (!hits.length) return;
+    const milestone = hits[hits.length - 1];
+    const names = entries.filter(e => e.actions > 0).map(e => ({ name: e.nickname, country: e.country }));
+    celebrate({ milestone, names, msg: CONFIG.PRIZE.msg });
+    try {
+      await store.savePrize({
+        milestone, total: after, mode: S.mode,
+        nickname: names.map(n => n.name).join(', ').slice(0, 20),
+        country: names.map(n => n.country).join(',')
+      });
+    } catch (e) { console.warn('당첨 기록 저장 실패', e); }
+  } catch (e) { console.warn('당첨 확인 실패', e); }
+}
+
+let prizeOpen = false;
+function celebrate({ milestone, names, msg }) {
+  const ov = $('#prizeOverlay');
+  $('#prizeNames').innerHTML = names.map(n =>
+    `<span class="prize-name ${n.country}">${escapeHtml(n.name)} <small>${COUNTRY[n.country]?.name || ''}</small></span>`).join('');
+  $('#prizeMsg').textContent = msg || '';
+  ov.classList.add('show');
+  ov.setAttribute('aria-hidden', 'false');
+  prizeOpen = true;
+  clearTimeout(idleTimer);
+  // 숫자가 0부터 올라가는 연출
+  const numEl = $('#prizeNum');
+  const t0 = performance.now(), dur = 1400;
+  const tick = (t) => {
+    const k = Math.min(1, (t - t0) / dur);
+    numEl.textContent = Math.round(milestone * (1 - Math.pow(1 - k, 3))).toLocaleString();
+    if (k < 1 && prizeOpen) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  sfx.fanfare();
+  setTimeout(() => prizeOpen && sfx.fanfare(), 1700);
+  startFireworks($('#fireworks'), () => sfx.pop());
+}
+
+function closePrize() {
+  if (!prizeOpen) return;
+  prizeOpen = false;
+  stopFireworks();
+  const ov = $('#prizeOverlay');
+  ov.classList.remove('show');
+  ov.setAttribute('aria-hidden', 'true');
+  resetIdle();
 }
 
 // ---------- 랭킹 ----------
@@ -481,6 +543,10 @@ async function loadRanking(period = 'today') {
 
 // ---------- 키보드 ----------
 window.addEventListener('keydown', (e) => {
+  if (prizeOpen) {
+    if (e.key === 'Enter' || e.key === 'Escape' || e.key === ' ') { e.preventDefault(); closePrize(); }
+    return;
+  }
   if (current === 'game') {
     const code = e.code;
     let side = null, idx = null;
@@ -512,5 +578,11 @@ window.addEventListener('keydown', (e) => {
   ver.textContent = VERSION;
   // 연결 상태는 화면에 표시하지 않고, 마우스를 올리면만 보이게
   ver.dataset.tip = mode === 'firebase' ? '🟢 온라인 랭킹 연결됨' : '🟠 로컬 랭킹 (이 컴퓨터에만 저장)';
+  $('#prizeClose').addEventListener('click', () => { sfx.click(); closePrize(); });
   show('start');
+  // 관리자 페이지의 '축하 화면 미리보기' (index.html?prizeTest=1)
+  if (new URLSearchParams(location.search).has('prizeTest')) {
+    const nx = Number(new URLSearchParams(location.search).get('n')) || 100;
+    celebrate({ milestone: nx, names: [{ name: '미리보기', country: 'korea' }, { name: '테스트', country: 'malaysia' }], msg: CONFIG.PRIZE.msg });
+  }
 })();
