@@ -1,8 +1,8 @@
-import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION, applySettings, milestonesBetween } from './data.js?v=1.5.1';
-import { startFireworks, stopFireworks } from './fireworks.js?v=1.5.1';
-import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.5.1';
-import * as store from './store.js?v=1.5.1';
-import { sfx, setSound, isSoundOn } from './sound.js?v=1.5.1';
+import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION, applySettings, milestonesBetween } from './data.js?v=1.5.2';
+import { startFireworks, stopFireworks } from './fireworks.js?v=1.5.2';
+import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.5.2';
+import * as store from './store.js?v=1.5.2';
+import { sfx, setSound, isSoundOn } from './sound.js?v=1.5.2';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -23,6 +23,7 @@ const S = {
   level: CONFIG.START_LEVEL,
   deck: { korea: [], malaysia: [] },
   goodIdx: { korea: 0, malaysia: 0 },
+  order: { korea: [], malaysia: [] },
   choice: { korea: null, malaysia: null },
   stats: { korea: { actions: 0, score: 0 }, malaysia: { actions: 0, score: 0 } },
   together: 0,
@@ -230,6 +231,9 @@ function startGame() {
     let d = shuffle(CARDS[side]);
     while (d.length < CONFIG.ROUNDS) d = d.concat(shuffle(CARDS[side]));
     S.deck[side] = d.slice(0, CONFIG.ROUNDS);
+    // 문제마다 좋은 선택지가 왼쪽(0)/오른쪽(1) 중 어디에 올지 판 시작 때 한 번만 정함
+    // (카운트다운 중 미리 보여 준 첫 문제의 선택지가 시작 순간 바뀌지 않도록)
+    S.order[side] = S.deck[side].map(() => (Math.random() < 0.5 ? 0 : 1));
     buildPanel(side);
   });
   $('#roundMax').textContent = CONFIG.ROUNDS;
@@ -255,7 +259,7 @@ function fillCards() {
     const p = $('#panel-' + side);
     p.querySelector('.sit-emoji').textContent = card.emoji;
     p.querySelector('.sit-text').textContent = card.sit;
-    S.goodIdx[side] = Math.random() < 0.5 ? 0 : 1;
+    S.goodIdx[side] = S.order[side][S.round];
     const btns = p.querySelectorAll('.choice');
     btns.forEach((b, i) => {
       const opt = i === S.goodIdx[side] ? card.good : card.bad;

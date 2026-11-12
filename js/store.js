@@ -1,6 +1,6 @@
 // ===== 랭킹 저장소 =====
 // firebase-config.js가 채워져 있으면 Firestore, 아니면 이 브라우저(localStorage)에 저장합니다.
-import { FIREBASE_CONFIG } from './firebase-config.js?v=1.5.1';
+import { FIREBASE_CONFIG } from './firebase-config.js?v=1.5.2';
 
 const BASE = 'https://www.gstatic.com/firebasejs/10.12.2/';
 const LS_R = 'ecoSea.rankings';
