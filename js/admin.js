@@ -1,5 +1,5 @@
-import * as store from './store.js?v=1.5.2';
-import { CONFIG, LIMITS, cleanPrizeList, nextMilestone } from './data.js?v=1.5.2';
+import * as store from './store.js?v=1.6.0';
+import { CONFIG, LIMITS, cleanPrizeList, nextMilestone } from './data.js?v=1.6.0';
 
 const $ = (s) => document.querySelector(s);
 const NAME = { korea: '한국', malaysia: '말레이시아' };

@@ -1,8 +1,8 @@
-import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION, applySettings, milestonesBetween } from './data.js?v=1.5.2';
-import { startFireworks, stopFireworks } from './fireworks.js?v=1.5.2';
-import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.5.2';
-import * as store from './store.js?v=1.5.2';
-import { sfx, setSound, isSoundOn } from './sound.js?v=1.5.2';
+import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION, applySettings, milestonesBetween } from './data.js?v=1.6.0';
+import { startFireworks, stopFireworks } from './fireworks.js?v=1.6.0';
+import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.6.0';
+import * as store from './store.js?v=1.6.0';
+import { sfx, setSound, isSoundOn } from './sound.js?v=1.6.0';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -228,9 +228,14 @@ function startGame() {
   S.together = 0;
   S.stats = { korea: { actions: 0, score: 0 }, malaysia: { actions: 0, score: 0 } };
   SIDES.forEach(side => {
-    let d = shuffle(CARDS[side]);
+    // 이 노트북에서 최근에 나온 문제는 뒤로 미루고, 안 나온 문제부터 뽑음
+    const recent = loadRecent(side);
+    const fresh = shuffle(CARDS[side].filter(c => !recent.includes(c.sit)));
+    const seen = shuffle(CARDS[side].filter(c => recent.includes(c.sit)));
+    let d = fresh.concat(seen);
     while (d.length < CONFIG.ROUNDS) d = d.concat(shuffle(CARDS[side]));
     S.deck[side] = d.slice(0, CONFIG.ROUNDS);
+    saveRecent(side, recent.concat(S.deck[side].map(c => c.sit)), CARDS[side].length - CONFIG.ROUNDS);
     // 문제마다 좋은 선택지가 왼쪽(0)/오른쪽(1) 중 어디에 올지 판 시작 때 한 번만 정함
     // (카운트다운 중 미리 보여 준 첫 문제의 선택지가 시작 순간 바뀌지 않도록)
     S.order[side] = S.deck[side].map(() => (Math.random() < 0.5 ? 0 : 1));
@@ -251,6 +256,14 @@ function startGame() {
     i < 3 ? sfx.count() : sfx.go();
   }, i * 800));
   later(() => { cd.classList.remove('show'); S.running = true; startRound(); }, steps.length * 800);
+}
+
+// 최근에 나온 문제 기록 (브라우저에 저장, 최대 '전체 문제 수 - 한 판 문제 수'개)
+function loadRecent(side) {
+  try { return JSON.parse(localStorage.getItem('ecoSea.recent.' + side)) || []; } catch (e) { return []; }
+}
+function saveRecent(side, list, keep) {
+  try { localStorage.setItem('ecoSea.recent.' + side, JSON.stringify(list.slice(-Math.max(0, keep)))); } catch (e) { /* 무시 */ }
 }
 
 function fillCards() {
