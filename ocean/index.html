@@ -68,6 +68,18 @@ button{font-family:inherit;cursor:pointer;border:none}
 .banner span{font-size:15px}
 .toast{position:absolute;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(255,255,255,.95);color:#0c4a6e;border-radius:14px;padding:10px 16px;font-size:14px;font-weight:700;max-width:min(520px,90vw);text-align:center;opacity:0;transition:opacity .4s;box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .toast.show{opacity:1}
+/* 이동 조이스틱 (휴대폰·태블릿) */
+.joy{position:absolute;left:calc(18px + env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom));width:132px;height:132px;border-radius:50%;
+  background:radial-gradient(circle,rgba(103,232,249,.10),rgba(3,25,40,.45) 70%);border:2.5px solid rgba(165,243,252,.55);box-shadow:0 0 18px rgba(34,211,238,.25),inset 0 0 20px rgba(0,0,0,.35);
+  pointer-events:auto;touch-action:none;display:none}
+.joy.show{display:block}
+.joy::before{content:'';position:absolute;inset:16px;border-radius:50%;border:1.5px dashed rgba(165,243,252,.3)}
+.joy-arrow{position:absolute;color:rgba(207,250,254,.6);font-size:12px;font-weight:900;line-height:1}
+.joy-knob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#a5f3fc,#0891b2 70%);border:2.5px solid #ecfeff;box-shadow:0 4px 12px rgba(0,0,0,.4);
+  display:flex;align-items:center;justify-content:center;color:#083344;font-size:11px;font-weight:900;transition:transform .12s}
+.joy.active .joy-knob{transition:none;box-shadow:0 0 18px #67e8f9}
+body.touch .hint{display:none}
 .hint{position:absolute;left:12px;bottom:calc(14px + env(safe-area-inset-bottom));font-size:12px;color:rgba(255,255,255,.75);background:rgba(3,25,40,.5);padding:5px 10px;border-radius:10px;max-width:45vw}
 
 /* 모달 */
@@ -166,6 +178,7 @@ body.vn-on #hud{visibility:hidden}
   .vn-chip{font-size:11.5px;padding:6px 10px}
 }
 @media (max-height:520px){
+  .joy{width:112px;height:112px}
   .vn-char{height:92vh;bottom:-6px;right:12px}
   .vn-box{right:30%;min-height:120px;padding:24px 16px 10px}
   .vn-text{font-size:15px;line-height:1.65}
@@ -243,6 +256,13 @@ body.vn-on #hud{visibility:hidden}
   <div class="banner" id="banner"></div>
   <div class="toast" id="toast"></div>
   <div class="hint">이동: WASD·방향키 또는 화면을 누른 채 드래그</div>
+  <div class="joy" id="joy">
+    <span class="joy-arrow" style="left:50%;top:8px;transform:translateX(-50%)">▲</span>
+    <span class="joy-arrow" style="left:50%;bottom:8px;transform:translateX(-50%)">▼</span>
+    <span class="joy-arrow" style="top:50%;left:9px;transform:translateY(-50%)">◀</span>
+    <span class="joy-arrow" style="top:50%;right:9px;transform:translateY(-50%)">▶</span>
+    <div class="joy-knob" id="joyKnob">이동</div>
+  </div>
 </div>
 
 <div id="vn" class="hidden">
@@ -281,7 +301,7 @@ const CFG = {
   NPC_ROLE: '해양연구원',
   GAME: '푸른바다 구조대',
   MAKER: '푸르이든',
-  VERSION: 'v1.9.0'
+  VERSION: 'v1.10.0'
 };
 
 const CARDS = [
@@ -637,6 +657,7 @@ document.addEventListener('visibilitychange', () => { if (!BGM.nodes) return; if
 let S = null, viewClean = 75, pointer = { active:false, x:0, y:0 };
 const keys = new Set();
 const act = { suck:false, arm:false };
+const joy = { active:false, id:null, x:0, y:0 };
 
 function newState(){
   return {
@@ -782,6 +803,7 @@ function update(dt){
   if (keys.has('KeyW') || keys.has('ArrowUp')) iy -= 1;
   if (keys.has('KeyS') || keys.has('ArrowDown')) iy += 1;
   if (pointer.active) { const dx = pointer.x-sub.x, dy = pointer.y-sub.y, d = Math.hypot(dx,dy); if (d > 18) { ix = dx/d; iy = dy/d; } }
+  if (joy.active) { ix = joy.x; iy = joy.y; }   // 조이스틱: 많이 밀수록 빠르게
   const il = Math.hypot(ix, iy); if (il > 1) { ix /= il; iy /= il; }
   const k = Math.min(1, dt*6);
   sub.vx += (ix*CFG.SPEED - sub.vx)*k; sub.vy += (iy*CFG.SPEED - sub.vy)*k;
@@ -1434,8 +1456,9 @@ function openModal(html){
   hideVN();
   $('modalBox').innerHTML = html; $('modal').classList.remove('hidden');
   if (S) S.paused = true;
-  act.suck = act.arm = false; keys.clear(); pointer.active = false;
+  act.suck = act.arm = false; keys.clear(); pointer.active = false; joyReset();
 }
+function joyReset(){ joy.active = false; joy.id = null; joy.x = joy.y = 0; const k = $('joyKnob'); if (k) k.style.transform = ''; const j = $('joy'); if (j) j.classList.remove('active'); }
 function closeModal(){
   $('modal').classList.add('hidden');
   resumeGame();
@@ -1546,7 +1569,7 @@ function say(o){
   $('vn').classList.remove('hidden'); $('vn').classList.toggle('bright', !!o.bright);
   document.body.classList.add('vn-on');
   if (S) S.paused = true;
-  act.suck = act.arm = false; keys.clear(); pointer.active = false;
+  act.suck = act.arm = false; keys.clear(); pointer.active = false; joyReset();
   $('vnLabel').textContent = o.label || `📡 ${CFG.GAME} · 본부 통신`;
   $('vnName').textContent = CFG.NPC; $('vnRole').textContent = `${CFG.GAME} 수석 ${CFG.NPC_ROLE}`;
   const sk = $('vnSkip');
@@ -1957,6 +1980,37 @@ bgmLabel();
 $('bSound').onclick = () => { sfxOn = !sfxOn; $('bSound').textContent = sfxOn ? '🔊 효과음' : '🔇 효과음'; SFX.click(); };
 $('questHead').onclick = () => { $('quest').classList.toggle('collapsed'); $('questToggle').textContent = $('quest').classList.contains('collapsed') ? '▼' : '▲'; };
 document.addEventListener('visibilitychange', () => { if (document.hidden && S && S.running && !modalOpen()) showDex(); });
+
+// ---------- 이동 조이스틱 ----------
+(function(){
+  const el = $('joy'), knob = $('joyKnob'), R = 46;
+  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || matchMedia('(pointer: coarse)').matches;
+  if (isTouch) { el.classList.add('show'); document.body.classList.add('touch'); }
+  const move = e => {
+    const r = el.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2;
+    let dx = e.clientX - cx, dy = e.clientY - cy; const d = Math.hypot(dx, dy);
+    if (d > R) { dx = dx/d*R; dy = dy/d*R; }
+    knob.style.transform = `translate(${dx}px, ${dy}px)`;
+    const m = Math.min(1, d / R), dead = .12;
+    const k = m < dead ? 0 : (m - dead) / (1 - dead);
+    joy.x = d ? dx/Math.min(d, R) * k : 0; joy.y = d ? dy/Math.min(d, R) * k : 0;
+  };
+  const end = e => {
+    if (e.pointerId !== joy.id) return;
+    joy.active = false; joy.id = null; joy.x = joy.y = 0;
+    knob.style.transform = ''; el.classList.remove('active');
+  };
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault(); e.stopPropagation();
+    if (!S || !S.running || S.paused) return;
+    joy.active = true; joy.id = e.pointerId; el.classList.add('active');
+    try { el.setPointerCapture(e.pointerId); } catch(_) {}
+    move(e);
+  });
+  el.addEventListener('pointermove', e => { if (joy.active && e.pointerId === joy.id) move(e); });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev => el.addEventListener(ev, end));
+  el.addEventListener('contextmenu', e => e.preventDefault());
+})();
 
 // ---------- 휴대폰·태블릿 확대 막기 ----------
 // 버튼을 빠르게 두 번 누르면 브라우저가 화면을 확대하는 것(더블탭 확대)을 막습니다.
