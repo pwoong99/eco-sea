@@ -84,5 +84,26 @@ service cloud.firestore {
         || (docId == 'visits' && validVisits());
       allow delete: if isAdmin();
     }
+
+    // ===== 푸른바다 구조대(ocean/) 랭킹 =====
+    function validOcean(d) {
+      return d.keys().hasOnly(['nickname', 'score', 'trash', 'nets', 'rescued', 'seconds', 'dateKey', 'createdAt'])
+        && d.keys().hasAll(['nickname', 'score', 'trash', 'nets', 'rescued', 'seconds', 'dateKey', 'createdAt'])
+        && d.nickname is string && d.nickname.size() >= 1 && d.nickname.size() <= 12
+        && d.score is int && d.score >= 0 && d.score <= 100000
+        && d.trash is int && d.trash >= 0 && d.trash <= 1000
+        && d.nets is int && d.nets >= 0 && d.nets <= 200
+        && d.rescued is int && d.rescued >= 0 && d.rescued <= 200
+        && d.seconds is int && d.seconds >= 0 && d.seconds <= 3600
+        && d.dateKey is string && d.dateKey.size() == 10
+        && d.createdAt == request.time;
+    }
+
+    match /ocean_rankings/{id} {
+      allow read: if true;
+      allow create: if validOcean(request.resource.data);
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
   }
 }
