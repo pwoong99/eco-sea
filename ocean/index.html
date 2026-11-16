@@ -277,7 +277,7 @@ const CFG = {
   NPC_ROLE: '해양연구원',
   GAME: '푸른바다 구조대',
   MAKER: '푸르이든',
-  VERSION: 'v1.6.0'
+  VERSION: 'v1.6.1'
 };
 
 const CARDS = [
@@ -367,7 +367,7 @@ function drawSprite(name, x, y, size, flip=false, rot=0, alpha=1){
   ctx.drawImage(im, -w/2, -h/2, w, h); ctx.restore();
   return true;
 }
-const SUB_W = 150, SUB_H = 150*395/520;
+const SUB_W = 120, SUB_H = 120*395/520;   // 잠수정 크기
 function mouthPos(sub){
   return IMG.sub ? { x: sub.x + sub.face*SUB_W*0.40, y: sub.y + SUB_H*0.23 } : { x: sub.x + sub.face*46, y: sub.y + 4 };
 }
@@ -476,7 +476,7 @@ function makeTrash(kind, x, y){
 }
 const CREATURES = ['fish','fish','fish','turtle','dolphin','manta'];
 function makeCreature(type, x, y, dir){
-  const r = { fish:16, turtle:26, dolphin:32, manta:32 }[type];
+  const r = { fish:16, turtle:26, dolphin:26, manta:32 }[type];
   const sp = { fish:rand(50,80), turtle:rand(30,45), dolphin:rand(70,100), manta:rand(35,55) }[type];
   const d = dir ?? (Math.random()<.5 ? 1 : -1);
   return { type, x: x ?? (d>0 ? -40 : W+40), y: y ?? rand(130, H-110), vx: sp*d, ph: rand(0,6.28), r,
@@ -485,7 +485,7 @@ function makeCreature(type, x, y, dir){
 }
 function spawnNet(){
   const trapped = Math.random() < .55 ? ['turtle','dolphin','manta','fish'][Math.floor(rand(0,4))] : null;
-  S.nets.push({ x: W + 70, y: rand(150, H-130), r: rand(44, 56), vx: -rand(14, 22), ph: rand(0,6.28), hp:1, trapped, cutting:false });
+  S.nets.push({ x: W + 70, y: rand(150, H-130), r: rand(35, 45), vx: -rand(14, 22), ph: rand(0,6.28), hp:1, trapped, cutting:false });
 }
 
 // ---------- 메시지 ----------
@@ -662,7 +662,7 @@ function update(dt){
     if (n.dead) continue;
     n.ph += dt; n.x += n.vx*dt; n.y += Math.sin(n.ph*.8)*10*dt;
     if (n.x < -n.r - 30) n.dead = true;
-    if (!act.arm && dist(n.x,n.y,sub.x,sub.y) < n.r + 24) {
+    if (!act.arm && dist(n.x,n.y,sub.x,sub.y) < n.r + 20) {
       hurt('폐그물에 걸렸어요! 로봇팔로 걷어내요 -1♥');
       const d = dist(n.x,n.y,sub.x,sub.y) || 1;
       sub.vx = (sub.x-n.x)/d*360; sub.vy = (sub.y-n.y)/d*360;
@@ -975,7 +975,7 @@ function armClaw(E, ang, grip){
   if (grip && Math.random() < .6) S.particles.push({ x: E.x + Math.cos(ang)*30 + rand(-6,6), y: E.y + Math.sin(ang)*30 + rand(-6,6), vx: rand(-120,120), vy: rand(-120,60), life: rand(.2,.45), size: rand(2,3.5), color: Math.random()<.5 ? '#fde047' : '#fb923c' });
 }
 // 로봇팔 그림: 밑판(0~195px) · 늘어나는 가운데 관(195~520px) · 집게(520px~) 세 부분으로 나눠 그림
-const ARM_CUT = { base:195, head:520, k:.28 };
+const ARM_CUT = { base:195, head:520, k:.224 };
 function armSprite(sub){
   const im = IMG.arm_open, k = ARM_CUT.k;
   const B = { x: sub.x + sub.face*SUB_W*0.10, y: sub.y + SUB_H*0.30 };
@@ -1091,7 +1091,7 @@ function drawNet(n){
   ctx.restore();
 }
 
-const CREATURE_SIZE = { turtle:84, dolphin:96, manta:92, clownfish:50, tang:48 };
+const CREATURE_SIZE = { turtle:84, dolphin:77, manta:92, clownfish:50, tang:48 };
 // 헤엄 동작: f 꼬리 흔드는 빠르기, amp 몸 물결 크기(px), k 물결 수, tail 꼬리 쪽 집중도, flap 위아래 날갯짓, rock 몸 기울기
 const SWIM = {
   clownfish:{ f:4.2, amp:4,   k:3.2, tail:1.7, flap:0,   flapF:1,  rock:.07, rockF:.5, breath:.03 },
