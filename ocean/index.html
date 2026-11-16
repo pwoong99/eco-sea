@@ -277,7 +277,7 @@ const CFG = {
   NPC_ROLE: '해양연구원',
   GAME: '푸른바다 구조대',
   MAKER: '푸르이든',
-  VERSION: 'v1.4.0'
+  VERSION: 'v1.4.1'
 };
 
 const CARDS = [
@@ -310,7 +310,7 @@ const FIRST_FACT = {
 };
 
 const STAGES = {
-  1:{ title:'1단계 · 얕은 바다', desc:'F키(흡입)로 떠다니는 쓰레기를 빨아들여요!' },
+  1:{ title:'1단계 · 얕은 바다', desc:'F키(흡입)로 쓰레기를, Space(로봇팔)로 폐그물을 치워요!' },
   2:{ title:'2단계 · 유령그물 구역', desc:'Space(로봇팔)로 폐그물을 걷어내고 갇힌 생물을 구해요!' },
   3:{ title:'3단계 · 미세플라스틱 해류', desc:'E키(초음파 펄스)로 반짝이는 작은 조각까지 한 번에!' }
 };
@@ -445,7 +445,7 @@ function newState(){
     trash:[], nets:[], creatures:[], particles:[], floats:[], rings:[],
     stats:{ trash:0, nets:0, rescued:0, score:0, clean:0, hp:CFG.MAX_HP, by:{bottle:0,bag:0,cup:0,can:0,micro:0} },
     unlocked:new Set(), seen:new Set(), cardQueue:[],
-    pulseCd:0, spawnT:0, netT:1.5, msgT:{}, readyNotified:false, armTarget:null
+    pulseCd:0, spawnT:0, netT:5, msgT:{}, readyNotified:false, armTarget:null
   };
 }
 
@@ -593,11 +593,14 @@ function update(dt){
   s.spawnT -= dt;
   const maxTrash = s.stage===3 ? 22 : 16;
   if (s.spawnT <= 0) { s.spawnT = s.stage===1 ? .8 : s.stage===2 ? 1.0 : .7; if (s.trash.length < maxTrash) spawnTrash(pickKind()); }
+  // 폐그물: 1단계부터 등장 (2단계에서 가장 많이), 도감을 다 채우면 조금 덜 나옴
   const netNeeded = !s.unlocked.has('net');
-  if (s.stage >= 2 || (s.elapsed > CFG.TIME && netNeeded)) {
-    s.netT -= dt;
-    const maxNets = s.stage===2 ? 3 : 2;
-    if (s.netT <= 0 && s.nets.length < maxNets) { spawnNet(); s.netT = s.stage===2 ? 4 : 6.5; }
+  s.netT -= dt;
+  const maxNets = s.stage===2 ? 3 : 2;
+  if (s.netT <= 0 && s.nets.length < maxNets) {
+    spawnNet();
+    s.netT = s.stage===1 ? 6 : s.stage===2 ? 4 : 6.5;
+    if (!netNeeded) s.netT *= 1.5;
   }
   if (s.creatures.filter(c=>!c.escape).length < 5) s.creatures.push(makeCreature(CREATURES[Math.floor(rand(0,CREATURES.length))]));
 
