@@ -278,7 +278,7 @@ const CFG = {
   NPC_ROLE: '해양연구원',
   GAME: '푸른바다 구조대',
   MAKER: '푸르이든',
-  VERSION: 'v1.7.1'
+  VERSION: 'v1.7.2'
 };
 
 const CARDS = [
@@ -355,7 +355,7 @@ const AVATAR = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ar
 
 // ---------- 그림 파일 (img 폴더) — 없으면 코드로 그린 모습으로 대신합니다 ----------
 const IMG = {};
-['far_clean.webp','far_polluted.webp','mid_clean.webp','mid_polluted.webp','front_clean.webp','front_polluted.webp','sub.png','net.png','bottle.png','bag.png','cup.png','can.png','micro.png',
+['far_clean.webp','far_polluted.webp','mid_clean.webp','mid_polluted.webp','frontL_clean.webp','frontL_polluted.webp','frontR_clean.webp','frontR_polluted.webp','sub.png','net.png','bottle.png','bag.png','cup.png','can.png','micro.png',
  'turtle.png','dolphin.png','manta.png','clownfish.png','tang.png','arm_open.png','arm_closed.png'].forEach(f => {
   const im = new Image(); im.onload = () => { IMG[f.split('.')[0]] = im; }; im.src = 'img/' + f;
 });
@@ -769,12 +769,18 @@ function render(){
 }
 
 // 이음매 없는 그림을 옆으로 이어 붙여 그리기 (아래쪽 맞춤)
-function drawLayer(name, off, h, k, mult=1){
+// 같은 번호에는 늘 같은 값을 주는 난수 (배치가 매번 바뀌지 않게)
+function hash(i, salt){ const v = Math.sin(i*127.1 + salt*311.7) * 43758.5453; return v - Math.floor(v); }
+function drawLayer(name, off, h, k, mult=1, salt=1){
   const draw = (img, a) => {
     if (!img || a <= 0) return;
-    const w = img.width * h / img.height, o = ((off % w) + w) % w, y = H - h;
+    const w = img.width * h / img.height, y = H - h;
     ctx.globalAlpha = a*mult;
-    for (let x = -o; x < W; x += w) ctx.drawImage(img, x, y, w + 1, h);
+    // 조각마다 좌우를 무작위로 뒤집어서 같은 무늬가 규칙적으로 반복되지 않게 (이음매는 그대로 이어짐)
+    for (let i = Math.floor(off / w), x = i*w - off; x < W; i++, x += w) {
+      if (hash(i, salt) < .5) ctx.drawImage(img, x, y, w + 1, h);
+      else { ctx.save(); ctx.translate(x + w, y); ctx.scale(-1, 1); ctx.drawImage(img, -1, 0, w + 1, h); ctx.restore(); }
+    }
     ctx.globalAlpha = 1;
   };
   if (k < 1) draw(IMG[name + '_polluted'], 1);
@@ -793,9 +799,33 @@ function drawTiled(img, off, w, h){
   }
 }
 // 맨 앞을 빠르게 지나가는 해초 그림자와 큰 알갱이 — 깊이감
+// 맨 앞 해초·바위 덩어리: 두 종류를 크기·방향·간격을 무작위로 바꿔 띄엄띄엄 놓음
+const frontItems = []; let frontNext = 0, frontSeq = 0;
+function drawFrontClumps(k){
+  const fx = SCROLL*1.25, baseH = Math.min(H*.36, 280);
+  while (frontNext < fx + W + 900) {
+    const i = frontSeq++;
+    const side = hash(i, 11) < .5 ? 'L' : 'R', sc = .7 + hash(i, 13)*.45, flip = hash(i, 17) < .5;
+    const im = IMG['front' + side + '_clean'], w = im.width * baseH*sc / im.height;
+    frontItems.push({ wx: frontNext, side, sc, flip, sink: hash(i, 19)*.12 });
+    frontNext += w + W*(.2 + hash(i, 23)*.75);   // 덩어리 사이 빈 공간도 매번 다르게
+  }
+  while (frontItems.length && frontItems[0].wx + 900 < fx - 600) frontItems.shift();
+  for (const it of frontItems) {
+    const hh = baseH*it.sc, x = it.wx - fx, y = H - hh*(1 - it.sink);
+    for (const [st, a] of [['polluted', 1], ['clean', k]]) {
+      const im = IMG['front' + it.side + '_' + st]; if (!im || a <= 0 || (st === 'polluted' && k >= 1)) continue;
+      const w = im.width * hh / im.height; if (x > W || x + w < 0) continue;
+      ctx.globalAlpha = a*.9;
+      if (!it.flip) ctx.drawImage(im, x, y, w, hh);
+      else { ctx.save(); ctx.translate(x + w, y); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, w, hh); ctx.restore(); }
+    }
+    ctx.globalAlpha = 1;
+  }
+}
 function drawForeground(k){
   for (const p of snow) { if (p.z <= 1.3) continue; ctx.fillStyle = `rgba(230,250,255,${.18})`; ctx.beginPath(); ctx.arc(p.x, p.y, 2 + (p.z-1.3)*6, 0, 6.28); ctx.fill(); }
-  if (IMG.front_clean && IMG.front_polluted) { drawLayer('front', SCROLL*1.25, Math.min(H*.36, 280), k, .88); return; }
+  if (IMG.frontL_clean && IMG.frontR_clean) { drawFrontClumps(k); return; }
   ctx.save();
   ctx.fillStyle = k > .5 ? 'rgba(4,40,48,.55)' : 'rgba(10,22,16,.6)';
   for (const f of fgWeeds) {
@@ -811,8 +841,8 @@ function drawForeground(k){
 function drawBackground(k){
   if (hasLayers()) {
     // 여러 겹 배경: 먼 바다(느리게) → 산호초 띠(중간) — 맨 앞 해초·바위는 drawForeground에서
-    drawLayer('far', SCROLL*.12, H, k);
-    drawLayer('mid', SCROLL*.45, H*.6, k);
+    drawLayer('far', SCROLL*.12, H, k, 1, 3);
+    drawLayer('mid', SCROLL*.45, H*.6, k, 1, 7);
     ctx.save(); ctx.globalAlpha = .04 + .06*k; ctx.fillStyle = '#fff';
     const rayW = W/3 + 200;
     for (let i=0;i<4;i++){ const x0 = ((i*rayW - SCROLL*.15) % (rayW*4) + rayW*4) % (rayW*4) - 200 + Math.sin(T*.25+i*2)*30; ctx.beginPath(); ctx.moveTo(x0,0); ctx.lineTo(x0+50,0); ctx.lineTo(x0+150,H*.75); ctx.lineTo(x0+70,H*.75); ctx.closePath(); ctx.fill(); }
