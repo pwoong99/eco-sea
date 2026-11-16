@@ -277,7 +277,7 @@ const CFG = {
   NPC_ROLE: '해양연구원',
   GAME: '푸른바다 구조대',
   MAKER: '푸르이든',
-  VERSION: 'v1.4.1'
+  VERSION: 'v1.4.2'
 };
 
 const CARDS = [
@@ -644,7 +644,7 @@ function update(dt){
         if (best.hp <= 0) removeNet(best);
       }
     } else if (sub.armExt > .7) {
-      const tx = sub.x + sub.face*(36 + CFG.ARM_REACH*sub.armExt), ty = sub.y + 14;
+      const { E } = armGeom(sub), tx = E.x, ty = E.y;
       for (const c of s.creatures) {
         if (!c.escape && dist(c.x,c.y,tx,ty) < c.r + 14 && c.hitT <= 0) {
           c.hitT = 2; c.vx = Math.sign(c.x - sub.x || 1) * Math.abs(c.vx) * 2.2;
@@ -795,18 +795,7 @@ function drawSub(){
     for (let i=0;i<3;i++){ const rr = ((T*120 + i*50) % CFG.SUCK_R); ctx.beginPath(); ctx.arc(mx,my,CFG.SUCK_R-rr,a0+.2,a0+1.3); ctx.stroke(); }
   }
   // 로봇팔
-  if (sub.armExt > .05) {
-    const sx = sub.x + sub.face*30, sy = sub.y + 14;
-    let ex, ey;
-    if (S.armTarget) { ex = sx + (S.armTarget.x - sx)*sub.armExt*.85; ey = sy + (S.armTarget.y - sy)*sub.armExt*.85; }
-    else { ex = sx + sub.face*CFG.ARM_REACH*sub.armExt; ey = sy; }
-    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 7; ctx.lineCap='round';
-    ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey); ctx.stroke();
-    ctx.strokeStyle = '#475569'; ctx.lineWidth = 2; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey); ctx.stroke(); ctx.setLineDash([]);
-    const a = Math.atan2(ey-sy, ex-sx), op = .5 + Math.sin(T*18)*.15;
-    ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 5;
-    for (const s of [-1,1]) { ctx.beginPath(); ctx.moveTo(ex,ey); ctx.lineTo(ex+Math.cos(a+s*op)*16, ey+Math.sin(a+s*op)*16); ctx.lineTo(ex+Math.cos(a+s*op*.3)*24, ey+Math.sin(a+s*op*.3)*24); ctx.stroke(); }
-  }
+  if (sub.armExt > .03) drawArm(sub);
   if (IMG.sub) {
     drawSprite('sub', sub.x, sub.y, SUB_W, sub.face < 0, clamp(sub.vy/1400, -.18, .18) * sub.face);
     if (Math.hypot(sub.vx, sub.vy) > 60 && Math.random() < .35) S.particles.push({ x: sub.x - sub.face*SUB_W*.5, y: sub.y + rand(-8,8), vx: -sub.face*rand(20,60), vy: -rand(20,50), life: .8, size: rand(2,4), color: 'rgba(255,255,255,.7)' });
@@ -837,6 +826,85 @@ function drawSub(){
   ctx.fillStyle = 'rgba(254,249,195,.25)'; ctx.beginPath(); ctx.moveTo(50,-6); ctx.lineTo(120,-30); ctx.lineTo(120,10); ctx.closePath(); ctx.fill();
   ctx.restore();
   ctx.globalAlpha = 1;
+}
+
+
+// ---------- 로봇팔 (두 마디 관절 팔 + 집게) ----------
+const ARM_L1 = 72, ARM_L2 = 68;
+function armGeom(sub){
+  const B = IMG.sub ? { x: sub.x + sub.face*SUB_W*0.16, y: sub.y + SUB_H*0.36 } : { x: sub.x + sub.face*26, y: sub.y + 16 };
+  const ext = clamp(sub.armExt, 0, 1);
+  let dx, dy;
+  const t = S && S.armTarget;
+  if (t) {
+    const d = Math.hypot(t.x - B.x, t.y - B.y) || 1;
+    const want = Math.min(ARM_L1 + ARM_L2 - 4, Math.max(30, d - t.r*0.45));
+    dx = (t.x - B.x)/d*want; dy = (t.y - B.y)/d*want;
+  } else { dx = sub.face*(ARM_L1 + ARM_L2 - 14); dy = 22; }
+  let D = Math.hypot(dx, dy) * (0.22 + 0.78*ext);
+  D = clamp(D, 24, ARM_L1 + ARM_L2 - 2);
+  const a = Math.atan2(dy, dx);
+  const E = { x: B.x + Math.cos(a)*D, y: B.y + Math.sin(a)*D };
+  const off = Math.acos(clamp((ARM_L1*ARM_L1 + D*D - ARM_L2*ARM_L2) / (2*ARM_L1*D), -1, 1));
+  const sgn = sub.face > 0 ? 1 : -1;
+  const J = { x: B.x + Math.cos(a + sgn*off)*ARM_L1, y: B.y + Math.sin(a + sgn*off)*ARM_L1 };
+  return { B, J, E, a2: Math.atan2(E.y - J.y, E.x - J.x), grip: !!t && ext > .6 };
+}
+function armSeg(p, q, w){
+  const len = Math.hypot(q.x - p.x, q.y - p.y), ang = Math.atan2(q.y - p.y, q.x - p.x);
+  ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(ang);
+  const g = ctx.createLinearGradient(0, -w/2, 0, w/2);
+  g.addColorStop(0, '#f1f5f9'); g.addColorStop(.45, '#cbd5e1'); g.addColorStop(1, '#64748b');
+  ctx.fillStyle = g; ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-2, -w/2, len + 4, w, w/2) : ctx.rect(-2, -w/2, len + 4, w); ctx.fill(); ctx.stroke();
+  // 유압 실린더
+  ctx.strokeStyle = 'rgba(30,41,59,.55)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(w*.7, -w*.18); ctx.lineTo(len - w*.7, -w*.18); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,.8)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(w*.7, -w*.32); ctx.lineTo(len*.55, -w*.32); ctx.stroke();
+  // 노란 경고 띠
+  ctx.fillStyle = '#facc15'; ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.rect(len*.42, -w/2 + 1, len*.16, w - 2); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2;
+  for (let i = 0; i < 3; i++) { const x = len*.42 + (i+.5)*len*.16/3; ctx.beginPath(); ctx.moveTo(x - 3, w/2 - 2); ctx.lineTo(x + 3, -w/2 + 2); ctx.stroke(); }
+  ctx.restore();
+}
+function armJoint(p, r){
+  const g = ctx.createRadialGradient(p.x - r*.3, p.y - r*.3, 1, p.x, p.y, r);
+  g.addColorStop(0, '#fef08a'); g.addColorStop(1, '#ca8a04');
+  ctx.fillStyle = g; ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.28); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#94a3b8'; ctx.beginPath(); ctx.arc(p.x, p.y, r*.42, 0, 6.28); ctx.fill(); ctx.stroke();
+}
+function armClaw(E, ang, grip){
+  ctx.save(); ctx.translate(E.x, E.y); ctx.rotate(ang);
+  const open = grip ? 4 + Math.sin(T*40)*1.5 : 13 + Math.sin(T*5)*2;
+  // 손가락 (위·아래) — 바깥 테두리 먼저, 안쪽 색 나중에
+  const finger = s => { ctx.beginPath(); ctx.moveTo(8, s*5); ctx.quadraticCurveTo(22, s*(open + 8), 34, s*open); ctx.lineTo(30, s*(open - 7)); };
+  for (const s of [-1, 1]) {
+    finger(s); ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
+    finger(s); ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 5; ctx.stroke();
+    ctx.fillStyle = '#f97316'; ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(31, s*(open - 6), 3.6, 0, 6.28); ctx.fill(); ctx.stroke();
+  }
+  // 손목 몸통
+  const g = ctx.createLinearGradient(0, -12, 0, 12); g.addColorStop(0, '#fde047'); g.addColorStop(1, '#ca8a04');
+  ctx.fillStyle = g; ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-6, -11, 20, 22, 6) : ctx.rect(-6, -11, 20, 22); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#334155'; ctx.beginPath(); ctx.arc(6, 0, 3.5, 0, 6.28); ctx.fill();
+  // 집게 불빛
+  ctx.fillStyle = grip ? '#f87171' : '#4ade80'; ctx.beginPath(); ctx.arc(-1, -6, 2.2, 0, 6.28); ctx.fill();
+  ctx.restore();
+  if (grip && Math.random() < .6) S.particles.push({ x: E.x + Math.cos(ang)*30 + rand(-6,6), y: E.y + Math.sin(ang)*30 + rand(-6,6), vx: rand(-120,120), vy: rand(-120,60), life: rand(.2,.45), size: rand(2,3.5), color: Math.random()<.5 ? '#fde047' : '#fb923c' });
+}
+function drawArm(sub){
+  const { B, J, E, a2, grip } = armGeom(sub);
+  // 케이블
+  ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(B.x, B.y + 6); ctx.quadraticCurveTo(J.x, J.y + 14, E.x, E.y + 4); ctx.stroke();
+  armSeg(B, J, 17); armSeg(J, E, 14);
+  armJoint(B, 11); armJoint(J, 10);
+  armClaw(E, a2, grip);
 }
 
 const TRASH_SIZE = { bottle:48, bag:48, cup:46, can:42, micro:34 };
