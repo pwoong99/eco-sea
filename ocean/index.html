@@ -277,7 +277,7 @@ const CFG = {
   NPC_ROLE: '해양연구원',
   GAME: '푸른바다 구조대',
   MAKER: '푸르이든',
-  VERSION: 'v1.5.1'
+  VERSION: 'v1.6.0'
 };
 
 const CARDS = [
@@ -690,6 +690,16 @@ function update(dt){
     else if (c.x < -60 || c.x > W+60) { c.dead = true; }
   }
 
+  // 카메라 따라가기: 잠수정이 앞으로 가면 바다 속 물체들도 그만큼 뒤로 흘러감
+  const camShift = (camSpeed - BASE_FLOW) * dt;
+  if (camShift) {
+    for (const t of s.trash) if (!t.suck && !t.pulled) t.x -= camShift;
+    for (const n of s.nets) n.x -= camShift;
+    for (const c of s.creatures) c.x -= camShift;
+  }
+  // 엔진 거품
+  if (Math.random() < .25) S.particles.push({ x: sub.x - sub.face*(IMG.sub ? SUB_W*.5 : 60), y: sub.y + rand(-6,6), vx: -sub.face*rand(30,70) - camSpeed*.5, vy: -rand(15,40), life: .9, size: rand(1.5,3.5), color: 'rgba(255,255,255,.65)' });
+
   // 효과
   for (const p of s.particles) { p.x += p.vx*dt; p.y += p.vy*dt; p.vx *= .94; p.vy *= .94; p.life -= dt; }
   for (const f of s.floats) { f.y -= 32*dt; f.life -= dt; }
@@ -702,8 +712,30 @@ function update(dt){
   if (s.elapsed >= s.timeLimit) timeUp();
 }
 
+// ---------- 앞으로 나아가는 느낌 (화면 흐름) ----------
+// BASE_FLOW: 가만히 있어도 바다가 뒤로 흘러가는 빠르기(px/초), 잠수정이 오른쪽으로 가면 더 빨라짐
+const BASE_FLOW = 36;
+let camSpeed = 20, SCROLL = 0;
+const snow = Array.from({length: 70}, () => ({ x: rand(0, 2000), y: rand(0, 1200), z: rand(.35, 1.7), ph: rand(0, 6.28) }));
+const fgWeeds = Array.from({length: 4}, (_, i) => ({ x: i * 520 + rand(0, 300), h: rand(90, 170), z: rand(1.6, 2.2), ph: rand(0, 6.28), n: Math.floor(rand(3, 6)) }));
 function ambient(dt){
-  for (const b of bubbles) { b.y -= b.v*dt; b.x += Math.sin((b.y+b.x)*.02)*.3; if (b.y < -10) { b.y = H+10; b.x = rand(0,W); } }
+  let target = BASE_FLOW*.6;
+  if (S && S.running && !S.paused) target = clamp(BASE_FLOW + S.sub.vx*.35, -40, 160);
+  else if (S && S.ending) target = BASE_FLOW*.8;
+  else if (S) target = BASE_FLOW*.35;
+  camSpeed += (target - camSpeed) * Math.min(1, dt*2.5);
+  SCROLL += camSpeed*dt;
+  for (const p of snow) {
+    p.x -= camSpeed*p.z*dt + 4*dt; p.y += Math.sin(T*.6 + p.ph)*6*dt + 3*dt;
+    if (p.x < -10) { p.x = W + rand(0, 60); p.y = rand(0, H); } if (p.x > W + 70) p.x = -5;
+    if (p.y > H + 10) p.y = -5;
+  }
+  for (const f of fgWeeds) {
+    f.x -= camSpeed*f.z*dt;
+    if (f.x < -160) { f.x = W + rand(150, 700); f.h = rand(90, 170); f.n = Math.floor(rand(3, 6)); }
+    if (f.x > W + 900) f.x = -150;
+  }
+  for (const b of bubbles) { b.y -= b.v*dt; b.x -= camSpeed*.7*dt; b.x += Math.sin((b.y+b.x)*.02)*.3; if (b.y < -10 || b.x < -10) { b.y = H+10; b.x = rand(0,W+40); } }
   for (const d of dust) { d.x += d.vx*dt; d.y += d.vy*dt; if (d.x<0) d.x=W; if (d.x>W) d.x=0; if (d.y<0) d.y=H; if (d.y>H) d.y=0; }
 }
 
@@ -724,6 +756,7 @@ function render(){
       if (p.emoji) { ctx.globalAlpha = clamp(p.life,0,1); ctx.font='26px sans-serif'; ctx.textAlign='center'; ctx.fillText(p.emoji, p.x, p.y); ctx.globalAlpha = 1; continue; }
       ctx.globalAlpha = clamp(p.life*1.5,0,1); ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x,p.y,p.size*p.life,0,6.28); ctx.fill(); ctx.globalAlpha = 1;
     }
+    if (IMG.bg_clean) drawForeground(k);
     ctx.textAlign = 'center'; ctx.font = "900 15px 'Noto Sans KR', sans-serif";
     for (const f of S.floats) {
       ctx.globalAlpha = clamp(f.life,0,1);
@@ -734,16 +767,46 @@ function render(){
   }
 }
 
+function drawTiled(img, off, w, h){
+  const period = 2*w, o = ((off % period) + period) % period;
+  let x = -o, i = 0;
+  while (x < W) {
+    if (x + w > 0) {
+      if (i % 2 === 0) ctx.drawImage(img, x, 0, w + 1, h);
+      else { ctx.save(); ctx.translate(x + w, 0); ctx.scale(-1, 1); ctx.drawImage(img, -1, 0, w + 1, h); ctx.restore(); }
+    }
+    x += w; i++;
+  }
+}
+// 맨 앞을 빠르게 지나가는 해초 그림자와 큰 알갱이 — 깊이감
+function drawForeground(k){
+  for (const p of snow) { if (p.z <= 1.3) continue; ctx.fillStyle = `rgba(230,250,255,${.18})`; ctx.beginPath(); ctx.arc(p.x, p.y, 2 + (p.z-1.3)*6, 0, 6.28); ctx.fill(); }
+  ctx.save();
+  ctx.fillStyle = k > .5 ? 'rgba(4,40,48,.55)' : 'rgba(10,22,16,.6)';
+  for (const f of fgWeeds) {
+    for (let j = 0; j < f.n; j++) {
+      const bx = f.x + j*16 - f.n*8, hh = f.h*(.7 + .3*Math.sin(j*1.7 + f.ph)), sw = Math.sin(T*1.3 + f.ph + j)*14;
+      ctx.beginPath(); ctx.moveTo(bx - 7, H + 4);
+      ctx.quadraticCurveTo(bx - 10 + sw*.5, H - hh*.55, bx + sw, H - hh);
+      ctx.quadraticCurveTo(bx + 8 + sw*.5, H - hh*.5, bx + 7, H + 4); ctx.closePath(); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
 function drawBackground(k){
   if (IMG.bg_polluted && IMG.bg_clean) {
-    const im = IMG.bg_clean, sc = Math.max(W/im.width, H/im.height), w = im.width*sc, h = im.height*sc, x = (W-w)/2, y = H-h;
-    if (k < 1) ctx.drawImage(IMG.bg_polluted, x, y, w, h);
-    if (k > 0) { ctx.globalAlpha = k; ctx.drawImage(im, x, y, w, h); ctx.globalAlpha = 1; }
+    const im = IMG.bg_clean, sc = H/im.height, w = im.width*sc, h = H;
+    const off = SCROLL*.5;
+    if (k < 1) drawTiled(IMG.bg_polluted, off, w, h);
+    if (k > 0) { ctx.globalAlpha = k; drawTiled(im, off, w, h); ctx.globalAlpha = 1; }
     ctx.save(); ctx.globalAlpha = .04 + .06*k; ctx.fillStyle = '#fff';
-    for (let i=0;i<3;i++){ const x0 = W*(.25+.25*i) + Math.sin(T*.25+i*2)*40; ctx.beginPath(); ctx.moveTo(x0,0); ctx.lineTo(x0+50,0); ctx.lineTo(x0+150,H*.75); ctx.lineTo(x0+70,H*.75); ctx.closePath(); ctx.fill(); }
+    const rayW = W/3 + 200;
+    for (let i=0;i<4;i++){ const x0 = ((i*rayW - SCROLL*.15) % (rayW*4) + rayW*4) % (rayW*4) - 200 + Math.sin(T*.25+i*2)*30; ctx.beginPath(); ctx.moveTo(x0,0); ctx.lineTo(x0+50,0); ctx.lineTo(x0+150,H*.75); ctx.lineTo(x0+70,H*.75); ctx.closePath(); ctx.fill(); }
     ctx.restore();
     ctx.fillStyle = `rgba(90,80,50,${.35*(1-k)})`;
     for (const d of dust) { ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,6.28); ctx.fill(); }
+    // 떠다니는 작은 알갱이(마린 스노우): 가까울수록 크고 빠르게 지나감
+    for (const p of snow) { if (p.z > 1.3) continue; ctx.fillStyle = `rgba(230,250,255,${.12 + p.z*.18})`; ctx.beginPath(); ctx.arc(p.x, p.y, .6 + p.z*1.3, 0, 6.28); ctx.fill(); }
     ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.2;
     for (const b of bubbles) { ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,6.28); ctx.stroke(); }
     return;
