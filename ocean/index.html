@@ -277,7 +277,7 @@ const CFG = {
   NPC_ROLE: '해양연구원',
   GAME: '푸른바다 구조대',
   MAKER: '푸르이든',
-  VERSION: 'v1.3.0'
+  VERSION: 'v1.4.0'
 };
 
 const CARDS = [
@@ -352,6 +352,26 @@ const AVATAR = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ar
   <rect x="66" y="80" width="10" height="3" rx="1" fill="#0ea5e9"/>
 </svg>`;
 
+// ---------- 그림 파일 (img 폴더) — 없으면 코드로 그린 모습으로 대신합니다 ----------
+const IMG = {};
+['bg_clean.jpg','bg_polluted.jpg','sub.png','net.png','bottle.png','bag.png','cup.png','can.png','micro.png',
+ 'turtle.png','dolphin.png','manta.png','clownfish.png','tang.png'].forEach(f => {
+  const im = new Image(); im.onload = () => { IMG[f.split('.')[0]] = im; }; im.src = 'img/' + f;
+});
+// 이름 그림을 (x,y) 가운데에 긴 쪽이 size가 되게 그리기
+function drawSprite(name, x, y, size, flip=false, rot=0, alpha=1){
+  const im = IMG[name]; if (!im) return false;
+  const s = size / Math.max(im.width, im.height), w = im.width*s, h = im.height*s;
+  ctx.save(); ctx.translate(x, y); if (rot) ctx.rotate(rot); if (flip) ctx.scale(-1, 1);
+  if (alpha < 1) ctx.globalAlpha *= alpha;
+  ctx.drawImage(im, -w/2, -h/2, w, h); ctx.restore();
+  return true;
+}
+const SUB_W = 150, SUB_H = 150*395/520;
+function mouthPos(sub){
+  return IMG.sub ? { x: sub.x + sub.face*SUB_W*0.40, y: sub.y + SUB_H*0.23 } : { x: sub.x + sub.face*46, y: sub.y + 4 };
+}
+
 // ---------- 공통 ----------
 const $ = id => document.getElementById(id);
 const rand = (a,b) => a + Math.random()*(b-a);
@@ -413,7 +433,7 @@ const SFX = {
 };
 
 // ---------- 상태 ----------
-let S = null, viewClean = 30, pointer = { active:false, x:0, y:0 };
+let S = null, viewClean = 75, pointer = { active:false, x:0, y:0 };
 const keys = new Set();
 const act = { suck:false, arm:false };
 
@@ -460,7 +480,8 @@ function makeCreature(type, x, y, dir){
   const sp = { fish:rand(50,80), turtle:rand(30,45), dolphin:rand(70,100), manta:rand(35,55) }[type];
   const d = dir ?? (Math.random()<.5 ? 1 : -1);
   return { type, x: x ?? (d>0 ? -40 : W+40), y: y ?? rand(130, H-110), vx: sp*d, ph: rand(0,6.28), r,
-           color: ['#fb923c','#facc15','#f472b6','#60a5fa'][Math.floor(rand(0,4))], escape:false, protT:0, hitT:0 };
+           color: ['#fb923c','#facc15','#f472b6','#60a5fa'][Math.floor(rand(0,4))], escape:false, protT:0, hitT:0,
+           sprite: type === 'fish' ? (Math.random() < .5 ? 'clownfish' : 'tang') : type };
 }
 function spawnNet(){
   const trapped = Math.random() < .55 ? ['turtle','dolphin','manta','fish'][Math.floor(rand(0,4))] : null;
@@ -581,7 +602,7 @@ function update(dt){
   if (s.creatures.filter(c=>!c.escape).length < 5) s.creatures.push(makeCreature(CREATURES[Math.floor(rand(0,CREATURES.length))]));
 
   // 흡입
-  const mx = sub.x + sub.face*46, my = sub.y + 4;
+  const { x: mx, y: my } = mouthPos(sub);
   for (const t of s.trash) {
     if (t.dead) continue;
     if (act.suck && dist(t.x,t.y,mx,my) < CFG.SUCK_R && (t.x-sub.x)*sub.face > -30) t.suck = true;
@@ -672,13 +693,13 @@ function ambient(dt){
 // ---------- 그리기 ----------
 let T = 0;
 function render(){
-  const target = S ? (S.ending ? 100 : S.stats.clean) : 30;
+  const target = S ? (S.ending ? 100 : S.stats.clean) : 75;
   viewClean += (target - viewClean) * .04;
   const k = viewClean / 100;
   drawBackground(k);
   if (S && (S.running || S.paused || S.ending)) {
     for (const n of S.nets) drawNet(n);
-    for (const c of S.creatures) drawCreature(c.type, c.x, c.y, Math.sign(c.vx)||1, c.ph, c.color, 1);
+    for (const c of S.creatures) drawCreature(c.type, c.x, c.y, Math.sign(c.vx)||1, c.ph, c.color, 1, false, c.sprite);
     for (const t of S.trash) drawTrash(t);
     if (!S.ending) drawSub();
     for (const r of S.rings) { ctx.strokeStyle = `rgba(216,180,254,${r.life})`; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(r.x,r.y,r.r,0,6.28); ctx.stroke(); }
@@ -697,6 +718,19 @@ function render(){
 }
 
 function drawBackground(k){
+  if (IMG.bg_polluted && IMG.bg_clean) {
+    const im = IMG.bg_clean, sc = Math.max(W/im.width, H/im.height), w = im.width*sc, h = im.height*sc, x = (W-w)/2, y = H-h;
+    if (k < 1) ctx.drawImage(IMG.bg_polluted, x, y, w, h);
+    if (k > 0) { ctx.globalAlpha = k; ctx.drawImage(im, x, y, w, h); ctx.globalAlpha = 1; }
+    ctx.save(); ctx.globalAlpha = .04 + .06*k; ctx.fillStyle = '#fff';
+    for (let i=0;i<3;i++){ const x0 = W*(.25+.25*i) + Math.sin(T*.25+i*2)*40; ctx.beginPath(); ctx.moveTo(x0,0); ctx.lineTo(x0+50,0); ctx.lineTo(x0+150,H*.75); ctx.lineTo(x0+70,H*.75); ctx.closePath(); ctx.fill(); }
+    ctx.restore();
+    ctx.fillStyle = `rgba(90,80,50,${.35*(1-k)})`;
+    for (const d of dust) { ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,6.28); ctx.fill(); }
+    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.2;
+    for (const b of bubbles) { ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,6.28); ctx.stroke(); }
+    return;
+  }
   const g = ctx.createLinearGradient(0,0,0,H);
   g.addColorStop(0, mix('#4b5a48','#38c6e8',k));
   g.addColorStop(.55, mix('#2c3a32','#138cc0',k));
@@ -748,7 +782,7 @@ function drawSub(){
   if (sub.invuln > 0 && Math.floor(T*14)%2) ctx.globalAlpha = .45;
   // 흡입 빔
   if (act.suck) {
-    const mx = sub.x + sub.face*46, my = sub.y + 4;
+    const { x: mx, y: my } = mouthPos(sub);
     const g = ctx.createRadialGradient(mx,my,5,mx,my,CFG.SUCK_R);
     g.addColorStop(0,'rgba(103,232,249,.45)'); g.addColorStop(1,'rgba(103,232,249,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(mx,my);
@@ -769,6 +803,12 @@ function drawSub(){
     const a = Math.atan2(ey-sy, ex-sx), op = .5 + Math.sin(T*18)*.15;
     ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 5;
     for (const s of [-1,1]) { ctx.beginPath(); ctx.moveTo(ex,ey); ctx.lineTo(ex+Math.cos(a+s*op)*16, ey+Math.sin(a+s*op)*16); ctx.lineTo(ex+Math.cos(a+s*op*.3)*24, ey+Math.sin(a+s*op*.3)*24); ctx.stroke(); }
+  }
+  if (IMG.sub) {
+    drawSprite('sub', sub.x, sub.y, SUB_W, sub.face < 0, clamp(sub.vy/1400, -.18, .18) * sub.face);
+    if (Math.hypot(sub.vx, sub.vy) > 60 && Math.random() < .35) S.particles.push({ x: sub.x - sub.face*SUB_W*.5, y: sub.y + rand(-8,8), vx: -sub.face*rand(20,60), vy: -rand(20,50), life: .8, size: rand(2,4), color: 'rgba(255,255,255,.7)' });
+    ctx.globalAlpha = 1;
+    return;
   }
   ctx.save(); ctx.translate(sub.x, sub.y); ctx.scale(sub.face, 1);
   ctx.rotate(clamp(sub.vy/1400, -.18, .18));
@@ -796,7 +836,14 @@ function drawSub(){
   ctx.globalAlpha = 1;
 }
 
+const TRASH_SIZE = { bottle:48, bag:48, cup:46, can:42, micro:34 };
 function drawTrash(t){
+  if (IMG[t.kind]) {
+    const sc = (t.suck || t.pulled) ? .85 : 1;
+    if (t.kind === 'micro') { const glow = .5 + Math.sin(T*6 + t.ph)*.5; ctx.fillStyle = `rgba(233,213,255,${.15+glow*.25})`; ctx.beginPath(); ctx.arc(t.x,t.y,16,0,6.28); ctx.fill(); }
+    drawSprite(t.kind, t.x, t.y, TRASH_SIZE[t.kind]*sc, false, t.kind === 'micro' ? 0 : Math.sin(t.rot)*.6);
+    return;
+  }
   ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.rot);
   if (t.suck || t.pulled) ctx.scale(.85,.85);
   switch (t.kind) {
@@ -837,7 +884,10 @@ function drawTrash(t){
 
 function drawNet(n){
   ctx.save(); ctx.translate(n.x, n.y);
-  if (n.trapped) drawCreature(n.trapped, 0, 0, -1, T*3, '#fb923c', .8, true);
+  if (n.trapped) drawCreature(n.trapped, 0, 0, -1, T*3, '#fb923c', .8, true, n.trapped === 'fish' ? 'clownfish' : n.trapped);
+  if (IMG.net) {
+    drawSprite('net', 0, 0, n.r*2.7, false, Math.sin(n.ph*.6)*.08);
+  } else {
   // 그물 모양
   const blob = () => { ctx.beginPath(); for (let i=0;i<=16;i++){ const a = i/16*6.28, rr = n.r*(1 + Math.sin(a*3 + n.ph)*.08); i ? ctx.lineTo(Math.cos(a)*rr, Math.sin(a)*rr) : ctx.moveTo(Math.cos(a)*rr, Math.sin(a)*rr); } ctx.closePath(); };
   blob();
@@ -848,6 +898,7 @@ function drawNet(n){
   ctx.restore();
   blob(); ctx.strokeStyle = '#92400e'; ctx.lineWidth = 4; ctx.stroke();
   ctx.fillStyle = '#f97316'; ctx.beginPath(); ctx.arc(-n.r*.7, -n.r*.75, 7, 0, 6.28); ctx.fill();
+  }
   // 진행도
   if (n.hp < 1) {
     ctx.strokeStyle = '#fde047'; ctx.lineWidth = 6; ctx.lineCap='round';
@@ -861,7 +912,10 @@ function drawNet(n){
   ctx.restore();
 }
 
-function drawCreature(type, x, y, dir, ph, color, sc=1, inNet=false){
+const CREATURE_SIZE = { turtle:84, dolphin:96, manta:92, clownfish:50, tang:48 };
+function drawCreature(type, x, y, dir, ph, color, sc=1, inNet=false, sprite=null){
+  const sp = sprite || (type === 'fish' ? 'clownfish' : type);
+  if (IMG[sp]) { drawSprite(sp, x, y, CREATURE_SIZE[sp]*sc, dir < 0, Math.sin(ph)*.07*dir); return; }
   ctx.save(); ctx.translate(x, y); ctx.scale(dir*sc, sc);
   const flap = Math.sin(ph*3);
   if (type === 'fish') {
