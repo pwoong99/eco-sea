@@ -277,7 +277,7 @@ const CFG = {
   NPC_ROLE: '해양연구원',
   GAME: '푸른바다 구조대',
   MAKER: '푸르이든',
-  VERSION: 'v1.5.0'
+  VERSION: 'v1.5.1'
 };
 
 const CARDS = [
@@ -355,7 +355,7 @@ const AVATAR = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ar
 // ---------- 그림 파일 (img 폴더) — 없으면 코드로 그린 모습으로 대신합니다 ----------
 const IMG = {};
 ['bg_clean.jpg','bg_polluted.jpg','sub.png','net.png','bottle.png','bag.png','cup.png','can.png','micro.png',
- 'turtle.png','dolphin.png','manta.png','clownfish.png','tang.png'].forEach(f => {
+ 'turtle.png','dolphin.png','manta.png','clownfish.png','tang.png','arm_open.png','arm_closed.png'].forEach(f => {
   const im = new Image(); im.onload = () => { IMG[f.split('.')[0]] = im; }; im.src = 'img/' + f;
 });
 // 이름 그림을 (x,y) 가운데에 긴 쪽이 size가 되게 그리기
@@ -645,10 +645,10 @@ function update(dt){
         if (best.hp <= 0) removeNet(best);
       }
     } else if (sub.armExt > .7) {
-      const { E } = armGeom(sub), tx = E.x, ty = E.y;
+      const { E } = IMG.arm_open ? armSprite(sub) : armGeom(sub), tx = E.x, ty = E.y;
       for (const c of s.creatures) {
         if (!c.escape && dist(c.x,c.y,tx,ty) < c.r + 14 && c.hitT <= 0) {
-          c.hitT = 2; c.vx = Math.sign(c.x - sub.x || 1) * Math.abs(c.vx) * 2.2;
+          c.hitT = 2; c.boost = 1; c.tvy = (c.y >= sub.y ? 1 : -1) * 60;
           S.particles.push({ x:c.x, y:c.y-c.r, vx:0, vy:-30, life:.9, size:0, color:'!', emoji:'💢' });
           hurt('바다 생물을 공격하면 안 돼요! -1♥');
           break;
@@ -681,11 +681,8 @@ function update(dt){
     // 가끔 휙 빨라지기
     c.boost = Math.max(0, (c.boost || 0) - dt*1.2);
     if (!c.escape && Math.random() < dt*0.07) c.boost = 1;
-    // 물고기·돌고래는 가끔 뒤로 돌기
-    c.turnCd = (c.turnCd ?? rand(4, 8)) - dt;
-    if (!c.escape && c.turnCd <= 0 && c.x > 90 && c.x < W - 90 && (c.type === 'fish' || c.type === 'dolphin')) { c.vx = -c.vx; c.turnCd = rand(5, 10); }
-    c.face = c.face ?? Math.sign(c.vx);
-    c.face += (Math.sign(c.vx) - c.face) * Math.min(1, dt*5);
+    // 화면 안에서는 방향을 바꾸지 않음 (화면 밖으로 나간 뒤 새로 들어옴)
+    c.face = Math.sign(c.vx) || 1;
     const sp = 1 + c.boost*1.3;
     c.ph += dt*(1.4 + sp*0.8 + (c.escape ? 1.5 : 0));
     c.x += c.vx*sp*dt; c.y += c.vy*dt;
@@ -914,7 +911,38 @@ function armClaw(E, ang, grip){
   ctx.restore();
   if (grip && Math.random() < .6) S.particles.push({ x: E.x + Math.cos(ang)*30 + rand(-6,6), y: E.y + Math.sin(ang)*30 + rand(-6,6), vx: rand(-120,120), vy: rand(-120,60), life: rand(.2,.45), size: rand(2,3.5), color: Math.random()<.5 ? '#fde047' : '#fb923c' });
 }
+// 로봇팔 그림: 밑판(0~195px) · 늘어나는 가운데 관(195~520px) · 집게(520px~) 세 부분으로 나눠 그림
+const ARM_CUT = { base:195, head:520, k:.28 };
+function armSprite(sub){
+  const im = IMG.arm_open, k = ARM_CUT.k;
+  const B = { x: sub.x + sub.face*SUB_W*0.10, y: sub.y + SUB_H*0.30 };
+  const bw = ARM_CUT.base*k, hw = (im.width - ARM_CUT.head)*k, midFull = (ARM_CUT.head - ARM_CUT.base)*k;
+  const t = S && S.armTarget, ext = clamp(sub.armExt, 0, 1);
+  let ang, mid;
+  if (t) {
+    ang = Math.atan2(t.y - B.y, t.x - B.x);
+    const want = Math.hypot(t.x - B.x, t.y - B.y) - t.r*0.35;
+    mid = clamp(want - bw*.65 - hw*.7, 6, midFull*1.7) * ext;
+  } else { ang = sub.face > 0 ? .28 : Math.PI - .28; mid = midFull*ext; }
+  sub.armAng = sub.armAng == null ? ang : sub.armAng + Math.atan2(Math.sin(ang - sub.armAng), Math.cos(ang - sub.armAng)) * .35;
+  mid = Math.max(6, mid);
+  const reach = -bw*.35 + bw + mid + hw*.7;
+  const E = { x: B.x + Math.cos(sub.armAng)*reach, y: B.y + Math.sin(sub.armAng)*reach };
+  return { B, E, ang: sub.armAng, bw, hw, mid, grip: !!t && ext > .6 };
+}
+function drawArmSprite(sub){
+  const g = armSprite(sub), im = (g.grip && IMG.arm_closed) ? IMG.arm_closed : IMG.arm_open, k = ARM_CUT.k, h = im.height*k;
+  ctx.save(); ctx.translate(g.B.x, g.B.y); ctx.rotate(g.ang); if (Math.cos(g.ang) < 0) ctx.scale(1, -1);
+  if (g.grip) ctx.translate(Math.sin(T*45)*1.2, 0);
+  const x0 = -g.bw*.35;
+  ctx.drawImage(im, 0, 0, ARM_CUT.base, im.height, x0, -h/2, g.bw, h);
+  ctx.drawImage(im, ARM_CUT.base, 0, ARM_CUT.head - ARM_CUT.base, im.height, x0 + g.bw - .5, -h/2, g.mid + 1, h);
+  ctx.drawImage(im, ARM_CUT.head, 0, im.width - ARM_CUT.head, im.height, x0 + g.bw + g.mid, -h/2, (im.width - ARM_CUT.head)*k, h);
+  ctx.restore();
+  if (g.grip && Math.random() < .6) S.particles.push({ x: g.E.x + rand(-6,6), y: g.E.y + rand(-6,6), vx: rand(-120,120), vy: rand(-120,60), life: rand(.2,.45), size: rand(2,3.5), color: Math.random()<.5 ? '#fde047' : '#fb923c' });
+}
 function drawArm(sub){
+  if (IMG.arm_open) { drawArmSprite(sub); return; }
   const { B, J, E, a2, grip } = armGeom(sub);
   // 케이블
   ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 3;
