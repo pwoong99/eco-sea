@@ -123,6 +123,51 @@ button{font-family:inherit;cursor:pointer;border:none}
 .rktable tr.me td{background:#fef9c3;font-weight:900}
 .rknote{font-size:12px;color:#64748b;margin-top:8px}
 .myrank{margin-top:10px;text-align:center;font-weight:900;color:#0e7490;min-height:22px}
+/* 비주얼노벨 대화 */
+#vn{position:fixed;inset:0;z-index:40;overflow:hidden}
+.vn-shade{position:absolute;inset:0;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);background:linear-gradient(180deg,rgba(2,12,20,.55),rgba(2,12,20,.3) 45%,rgba(2,12,20,.85));transition:background 1s}
+#vn.bright .vn-shade{background:linear-gradient(180deg,rgba(2,12,20,.1),rgba(2,12,20,0) 45%,rgba(2,12,20,.6))}
+body.vn-on #hud{visibility:hidden}
+.vn-top{position:absolute;top:calc(12px + env(safe-area-inset-top));left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;z-index:3}
+.vn-chip{background:rgba(3,25,40,.8);border:1px solid rgba(103,232,249,.5);color:#cffafe;border-radius:999px;padding:7px 14px;font-weight:700;font-size:13px;box-shadow:0 0 14px rgba(34,211,238,.2)}
+.vn-skip{background:rgba(3,25,40,.8);color:#e0f2fe;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:7px 14px;font-weight:700;font-size:13px}
+.vn-char{position:absolute;right:max(5vw,24px);bottom:60px;height:min(80vh,680px);aspect-ratio:1/2;z-index:1;pointer-events:none}
+.vn-char.enter{animation:vnIn .7s cubic-bezier(.2,.8,.2,1)}
+.vn-char img,.vn-char svg{display:block;width:100%;height:100%;object-fit:contain;object-position:bottom center;animation:breathe 3.4s ease-in-out infinite;filter:drop-shadow(0 12px 30px rgba(0,0,0,.55))}
+.vn-box{position:absolute;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));max-width:1180px;margin:0 auto;background:linear-gradient(180deg,rgba(6,32,50,.95),rgba(3,18,30,.97));border:2px solid rgba(103,232,249,.6);border-radius:20px;padding:30px 26px 16px;box-shadow:0 0 34px rgba(34,211,238,.28),inset 0 1px 0 rgba(255,255,255,.08);cursor:pointer;min-height:176px;z-index:2}
+#vnExtra{max-height:42vh;overflow:auto}
+.vn-name{position:absolute;top:-17px;left:24px;display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,#22d3ee,#0ea5e9);color:#04293a;border-radius:999px;padding:6px 16px;font-size:12.5px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.vn-name b{font-size:16px;font-weight:900}
+.vn-text{font-size:clamp(16px,2.1vw,20px);line-height:1.8;color:#f0f9ff;min-height:3.6em;word-break:keep-all}
+.vn-text b{color:#fde047}
+.vn-text.typing::after{content:'▍';color:#67e8f9;animation:blink .7s infinite}
+.vn-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:10px;flex-wrap:wrap}
+.vn-hint{font-size:12px;color:#7dd3fc;opacity:.85}
+.vn-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
+.vbtn{background:rgba(14,116,144,.35);color:#e0f2fe;border:1.5px solid #22d3ee;border-radius:12px;padding:10px 18px;font-weight:700;font-size:15px}
+.vbtn:hover{background:rgba(34,211,238,.3)}
+.vbtn.gold{background:linear-gradient(#fde047,#f59e0b);color:#78350f;border-color:#fde047}
+.vchoice{display:block;width:100%;text-align:left;background:rgba(255,255,255,.07);border:1.5px solid rgba(103,232,249,.5);color:#f0f9ff;border-radius:12px;padding:11px 14px;margin-top:8px;font-size:15px;font-weight:700}
+.vchoice:hover{background:rgba(34,211,238,.22)}
+.vn-ready .vn-btns,.vn-ready #vnExtra{animation:fadeUp .35s}
+#vnExtra .misslist{color:#e0f2fe}
+#vnExtra .nick{background:rgba(255,255,255,.95)}
+#vnExtra .chips button{background:rgba(165,243,252,.15);color:#a5f3fc;border:1px solid rgba(165,243,252,.4)}
+#vnExtra .err{color:#fda4af}
+@keyframes vnIn{from{transform:translateX(80px);opacity:0}}
+@keyframes breathe{50%{transform:translateY(-6px)}}
+@keyframes blink{50%{opacity:0}}
+@keyframes fadeUp{from{transform:translateY(6px);opacity:0}}
+@media (max-width:700px){
+  .vn-char{height:56vh;right:-24px;bottom:150px}
+  .vn-box{padding:26px 16px 12px;min-height:150px;left:8px;right:8px}
+  .vn-chip{font-size:11.5px;padding:6px 10px}
+}
+@media (max-height:520px){
+  .vn-char{height:92vh;bottom:-6px;right:12px}
+  .vn-box{right:30%;min-height:120px;padding:24px 16px 10px}
+  .vn-text{font-size:15px;line-height:1.65}
+}
 #printArea{display:none}
 @media print{
   body>*{display:none!important}
@@ -196,6 +241,17 @@ button{font-family:inherit;cursor:pointer;border:none}
   <div class="hint">이동: WASD·방향키 또는 화면을 누른 채 드래그</div>
 </div>
 
+<div id="vn" class="hidden">
+  <div class="vn-shade"></div>
+  <div class="vn-top"><span class="vn-chip" id="vnLabel"></span><button class="vn-skip hidden" id="vnSkip"></button></div>
+  <div class="vn-char" id="vnChar"></div>
+  <div class="vn-box" id="vnBox">
+    <div class="vn-name"><b id="vnName"></b><span id="vnRole"></span></div>
+    <div class="vn-text" id="vnText"></div>
+    <div id="vnExtra"></div>
+    <div class="vn-foot"><span class="vn-hint" id="vnHint"></span><div class="vn-btns" id="vnBtns"></div></div>
+  </div>
+</div>
 <div id="modal" class="modal hidden"><div class="modal-box" id="modalBox"></div></div>
 <div id="printArea"><img id="printImg" alt="수료증"></div>
 
@@ -221,7 +277,7 @@ const CFG = {
   NPC_ROLE: '해양연구원',
   GAME: '푸른바다 구조대',
   MAKER: '푸르이든',
-  VERSION: 'v1.1.0'
+  VERSION: 'v1.2.0'
 };
 
 const CARDS = [
@@ -867,36 +923,186 @@ function updateHUD(){
 }
 
 // ---------- 모달 ----------
-const modalOpen = () => !$('modal').classList.contains('hidden');
+const modalOpen = () => !$('modal').classList.contains('hidden') || vnOpen();
 function openModal(html){
+  hideVN();
   $('modalBox').innerHTML = html; $('modal').classList.remove('hidden');
   if (S) S.paused = true;
   act.suck = act.arm = false; keys.clear(); pointer.active = false;
 }
 function closeModal(){
   $('modal').classList.add('hidden');
+  resumeGame();
+}
+function resumeGame(){
   if (S) { S.paused = false; if (S.running && S.cardQueue.length) setTimeout(()=>{ if (!modalOpen() && S.cardQueue.length) showCardPopup(S.cardQueue.shift()); }, 200); }
 }
 function npc(text, btns='', extra=''){
   return `<div class="npc"><div class="ava">${AVATAR}</div><div style="flex:1"><div class="npcname">${CFG.NPC} · ${CFG.NPC_ROLE}</div><div class="bubble">${text}</div></div></div>${extra}<div class="btns">${btns}</div>`;
 }
+
+// ---------- 웅이 박사 (그림 파일이 있으면 그림, 없으면 코드로 그린 모습) ----------
+// ocean/img/woong.png(기본), woong_worry.png(걱정), woong_happy.png(기쁨)을 올리면 자동으로 바뀝니다.
+const CHAR_IMG = { normal:'img/woong.png', worry:'img/woong_worry.png', happy:'img/woong_happy.png' };
+const charOK = {};
+let vnMood = null, vnTyping = null, vnNext = null, vnFinish = null;
+Object.entries(CHAR_IMG).forEach(([m, src]) => {
+  const im = new Image();
+  im.onload = () => { charOK[m] = src; if (vnOpen()) setChar(vnMood, true); };
+  im.src = src;
+});
+function woongHead(mood){
+  const st = 'stroke="#3f3f46" stroke-width="2.6" fill="none" stroke-linecap="round"';
+  const brows = mood === 'worry' ? `<path d="M34 37.5 L45 33.5" ${st}/><path d="M55 33.5 L66 37.5" ${st}/>`
+    : mood === 'happy' ? `<path d="M34 35 Q39.5 31 45 34" ${st}/><path d="M55 34 Q60.5 31 66 35" ${st}/>`
+    : `<path d="M34 36 L45 35.5" ${st}/><path d="M55 35.5 L66 36" ${st}/>`;
+  const eyes = mood === 'happy'
+    ? `<path d="M37 46 Q40 42.5 43 46" stroke="#1f2937" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M57 46 Q60 42.5 63 46" stroke="#1f2937" stroke-width="2.2" fill="none" stroke-linecap="round"/>`
+    : `<circle cx="40" cy="45" r="2.4" fill="#1f2937"/><circle cx="60" cy="45" r="2.4" fill="#1f2937"/><circle cx="40.8" cy="44.2" r=".8" fill="#fff"/><circle cx="60.8" cy="44.2" r=".8" fill="#fff"/>`;
+  const mouth = mood === 'happy'
+    ? `<path d="M43 62 Q50 71 57 62 Z" fill="#7f1d1d"/><path d="M44.5 62.6 Q50 64.5 55.5 62.6 L55 63.6 Q50 65.4 45 63.6Z" fill="#fff"/>`
+    : mood === 'worry' ? `<path d="M45 65 Q50 61.5 55 65" stroke="#9a5b45" stroke-width="2" fill="none" stroke-linecap="round"/>`
+    : `<path d="M44 63 C47 66.5 53 66.5 56 63" stroke="#9a5b45" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+  return `
+  <ellipse cx="27" cy="46" rx="4" ry="6" fill="#e8b48c"/><ellipse cx="73" cy="46" rx="4" ry="6" fill="#e8b48c"/>
+  <ellipse cx="50" cy="44" rx="23" ry="26" fill="#f1c19a"/>
+  <path d="M27 50 Q30 62 40 68" stroke="#e3a982" stroke-width="1.2" fill="none" opacity=".7"/><path d="M73 50 Q70 62 60 68" stroke="#e3a982" stroke-width="1.2" fill="none" opacity=".7"/>
+  <path d="M26 40 C25 22 36 15 50 15 C64 15 75 22 74 40 C71 32 66 28 61 27 C55 30 45 30 39 27 C34 28 29 32 26 40Z" fill="#3f3f46"/>
+  <path d="M28 38 C28 33 30 30 33 28" stroke="#a1a1aa" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M72 38 C72 33 70 30 67 28" stroke="#a1a1aa" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M42 22 C46 20 52 20 56 22" stroke="#71717a" stroke-width="2" fill="none"/>
+  <path d="M41 30 Q50 28 59 30" stroke="#e3a982" stroke-width="1" fill="none" opacity=".6"/>
+  ${brows}${eyes}
+  <circle cx="40" cy="44.5" r="7.5" fill="rgba(186,230,253,.18)" stroke="#334155" stroke-width="2.2"/>
+  <circle cx="60" cy="44.5" r="7.5" fill="rgba(186,230,253,.18)" stroke="#334155" stroke-width="2.2"/>
+  <path d="M47.5 44 L52.5 44" stroke="#334155" stroke-width="2"/><path d="M32.5 43 L27 41" stroke="#334155" stroke-width="2"/><path d="M67.5 43 L73 41" stroke="#334155" stroke-width="2"/>
+  <path d="M50 46 C48 52 48 54 51 54" stroke="#c98d68" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M39 58 C43 54 48 56 50 57 C52 56 57 54 61 58 C57 60 53 59 50 59 C47 59 43 60 39 58Z" fill="#52525b"/>
+  ${mouth}
+  ${mood === 'happy' ? '<ellipse cx="34" cy="54" rx="4" ry="2.2" fill="#fb7185" opacity=".35"/><ellipse cx="66" cy="54" rx="4" ry="2.2" fill="#fb7185" opacity=".35"/>' : ''}`;
+}
+function woongSVG(mood='normal'){
+  const wave = mood === 'happy' ? 'rotate(-35 214 210)' : '';
+  return `<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg" aria-label="${CFG.NPC}">
+  <defs>
+    <linearGradient id="wCoat" x1="0" x2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#f1f5f9"/><stop offset="1" stop-color="#d9e2ec"/></linearGradient>
+    <linearGradient id="wPants" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#334155"/><stop offset="1" stop-color="#1e293b"/></linearGradient>
+  </defs>
+  <ellipse cx="150" cy="588" rx="80" ry="10" fill="rgba(0,0,0,.35)"/>
+  <path d="M112 440 L146 440 L144 572 L114 572Z" fill="url(#wPants)"/>
+  <path d="M154 440 L188 440 L186 572 L156 572Z" fill="url(#wPants)"/>
+  <path d="M108 566 Q102 586 130 587 L146 587 L146 566Z" fill="#3f2a1d"/>
+  <path d="M192 566 Q198 586 170 587 L154 587 L154 566Z" fill="#3f2a1d"/>
+  <path d="M93 206 Q70 262 70 382 L97 386 Q100 292 113 240Z" fill="url(#wCoat)" stroke="#cbd5e1" stroke-width="2"/>
+  <ellipse cx="84" cy="394" rx="12" ry="14" fill="#f1c19a"/>
+  <path d="M96 200 Q150 186 204 200 L214 300 L225 480 Q150 494 75 480 L86 300Z" fill="url(#wCoat)" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M128 196 L150 300 L172 196Z" fill="#7dd3fc"/>
+  <path d="M146.5 212 L153.5 212 L160 286 L150 300 L140 286Z" fill="#1e40af"/>
+  <path d="M143 240 L157 233 M141 260 L159 253 M140.5 280 L159.5 273" stroke="#60a5fa" stroke-width="3"/>
+  <path d="M128 194 L150 300 L121 262 L104 210Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M172 194 L150 300 L179 262 L196 210Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+  <line x1="150" y1="300" x2="150" y2="486" stroke="#cbd5e1" stroke-width="2"/>
+  <circle cx="157" cy="330" r="3.5" fill="#cbd5e1"/><circle cx="157" cy="382" r="3.5" fill="#cbd5e1"/><circle cx="157" cy="434" r="3.5" fill="#cbd5e1"/>
+  <path d="M96 404 L132 404 L132 444 L98 444Z" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M168 404 L204 404 L203 444 L168 444Z" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="106" y="238" width="4.5" height="20" rx="2" fill="#2563eb"/><rect x="114" y="242" width="4.5" height="16" rx="2" fill="#dc2626"/>
+  <path d="M103 252 L131 252 L130 274 L104 274Z" fill="url(#wCoat)" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="171" y="246" width="31" height="20" rx="4" fill="#0e7490"/><path d="M175 258 Q180 251 185 258 T195 258" stroke="#a5f3fc" stroke-width="2" fill="none"/>
+  <g transform="${wave}">
+    <path d="M204 204 Q232 250 230 316 L206 320 Q206 270 192 236Z" fill="url(#wCoat)" stroke="#cbd5e1" stroke-width="2"/>
+    <path d="M230 312 Q222 346 190 352 L184 330 Q204 326 208 312Z" fill="url(#wCoat)" stroke="#cbd5e1" stroke-width="2"/>
+    <g transform="rotate(-12 175 340)"><rect x="148" y="308" width="52" height="68" rx="6" fill="#1e293b"/><rect x="153" y="314" width="42" height="56" rx="3" fill="#22d3ee"/><path d="M158 350 Q166 340 174 350 T190 350" stroke="#ecfeff" stroke-width="2" fill="none"/><circle cx="166" cy="327" r="4" fill="#ecfeff"/><rect x="174" y="324" width="16" height="3" rx="1.5" fill="#ecfeff"/></g>
+    <ellipse cx="186" cy="343" rx="11" ry="10" fill="#f1c19a"/>
+  </g>
+  <path d="M136 166 L164 166 L166 198 Q150 206 134 198Z" fill="#e3a982"/>
+  <path d="M126 192 L150 214 L174 192 L167 184 L150 202 L133 184Z" fill="#e0f2fe" stroke="#93c5fd" stroke-width="1.5"/>
+  <path d="M145 204 L155 204 L153.5 213 L146.5 213Z" fill="#1e3a8a"/>
+  <g transform="translate(62.5 41) scale(1.75)">${woongHead(mood)}</g>
+</svg>`;
+}
+function setChar(mood, force){
+  if (vnMood === mood && !force) return;
+  vnMood = mood;
+  const src = charOK[mood] || charOK.normal;
+  $('vnChar').innerHTML = src ? `<img src="${src}" alt="${CFG.NPC}">` : woongSVG(mood);
+}
+
+// ---------- 비주얼노벨 대화창 ----------
+const vnOpen = () => !$('vn').classList.contains('hidden');
+function hideVN(){
+  clearInterval(vnTyping); vnTyping = null;
+  $('vn').classList.add('hidden'); document.body.classList.remove('vn-on');
+}
+function closeVN(){ hideVN(); resumeGame(); }
+function say(o){
+  $('modal').classList.add('hidden');
+  const first = !vnOpen();
+  $('vn').classList.remove('hidden'); $('vn').classList.toggle('bright', !!o.bright);
+  document.body.classList.add('vn-on');
+  if (S) S.paused = true;
+  act.suck = act.arm = false; keys.clear(); pointer.active = false;
+  $('vnLabel').textContent = o.label || `📡 ${CFG.GAME} · 본부 통신`;
+  $('vnName').textContent = CFG.NPC; $('vnRole').textContent = `${CFG.GAME} 수석 ${CFG.NPC_ROLE}`;
+  const sk = $('vnSkip');
+  if (o.skip) { sk.classList.remove('hidden'); sk.textContent = o.skipText || '건너뛰기 →'; sk.onclick = e => { e.stopPropagation(); SFX.click(); o.skip(); }; }
+  else sk.classList.add('hidden');
+  if (first) { vnMood = null; const c = $('vnChar'); c.classList.remove('enter'); void c.offsetWidth; c.classList.add('enter'); }
+  setChar(o.mood || 'normal');
+  vnNext = o.next || null;
+  const btns = (o.btns || []).slice();
+  if (!btns.length && o.next) btns.push({ text:'다음 ›', fn:o.next });
+  $('vnBtns').innerHTML = ''; $('vnExtra').innerHTML = '';
+  $('vnHint').textContent = o.next ? '대화창을 클릭하거나 Enter를 누르면 넘어가요' : (o.hint || '');
+  const box = $('vnBox'), txt = $('vnText');
+  const finish = () => {
+    clearInterval(vnTyping); vnTyping = null; vnFinish = null;
+    txt.innerHTML = o.text; txt.classList.remove('typing');
+    $('vnExtra').innerHTML = o.extra || '';
+    $('vnBtns').innerHTML = btns.map((b,i) => `<button class="vbtn ${b.cls||''}" data-i="${i}">${b.text}</button>`).join('');
+    $('vnBtns').querySelectorAll('button').forEach(el => el.onclick = e => { e.stopPropagation(); SFX.click(); vnNext = null; btns[+el.dataset.i].fn(); });
+    box.classList.remove('vn-ready'); void box.offsetWidth; box.classList.add('vn-ready');
+    if (o.onReady) o.onReady();
+  };
+  const tokens = o.text.match(/<[^>]+>|&[^;]+;|[\s\S]/g) || [];
+  let n = 0;
+  txt.innerHTML = ''; txt.classList.add('typing');
+  clearInterval(vnTyping);
+  vnFinish = finish;
+  vnTyping = setInterval(() => {
+    n++;
+    while (n < tokens.length && tokens[n-1][0] === '<') n++;
+    txt.innerHTML = tokens.slice(0, n).join('');
+    if (n % 3 === 0) beep(rand(680, 820), .03, 'square', .012);
+    if (n >= tokens.length) finish();
+  }, 26);
+}
+function vnAdvance(){
+  if (!vnOpen()) return;
+  if (vnTyping) { if (vnFinish) vnFinish(); return; }
+  if (vnNext) { SFX.click(); const f = vnNext; vnNext = null; f(); }
+}
+
 function on(id, fn){ const el = $(id); if (el) el.onclick = () => { SFX.click(); fn(); }; }
 
 // 출동 브리핑
 const BRIEF = [
-  `반가워요, 구조대원님! 저는 ${CFG.NPC}예요. 지금 우리 바다가 버려진 플라스틱과 폐그물 때문에 탁하고 어둡게 변하고 있어요.`,
+  `반가워요, 구조대원님! 저는 ${CFG.GAME}의 ${CFG.NPC}예요. 지금 우리 바다가 버려진 플라스틱과 폐그물 때문에 탁하고 어둡게 변하고 있어요.`,
   `잠수정에는 바다 생물은 지켜 주고 <b>쓰레기만 골라 빨아들이는 흡입기(F키)</b>가 있어요. 커다란 폐그물과 그물에 갇힌 생물은 <b>로봇팔(Space키)</b>로만 구할 수 있어요. 로봇팔로 바다 생물을 건드리면 안 돼요!`,
   `쓰레기를 모아 <b>해양오염 도감 6종</b>을 모두 열고, 바다 정화도를 <b>100%</b>로 만들어 주세요. 시간은 3분 30초! 준비됐나요?`
 ];
 function showBriefing(i=0){
   const last = i === BRIEF.length-1;
-  openModal(`<div class="mtitle">📡 긴급 출동 브리핑</div>` + npc(BRIEF[i],
-    `<button class="btn sub" id="mSkip">건너뛰기</button><button class="btn ${last?'gold':''}" id="mNext">${last?'출동! 🚤':'다음'}</button>`));
-  on('mNext', () => last ? beginRun() : showBriefing(i+1));
-  on('mSkip', beginRun);
+  say({
+    label: `📡 긴급 출동 브리핑 · ${CFG.GAME}`,
+    mood: i === 0 ? 'worry' : 'normal',
+    text: BRIEF[i],
+    skip: beginRun, skipText: '브리핑 건너뛰기 →',
+    next: last ? null : () => showBriefing(i+1),
+    btns: last ? [{ text:'퀘스트 수락 · 바다로 출동! 🚤', cls:'gold', fn:beginRun }] : []
+  });
 }
 function beginRun(){
-  closeModal(); S.running = true; S.paused = false;
+  closeVN(); S.running = true; S.paused = false;
   banner(STAGES[1].title, STAGES[1].desc);
 }
 
@@ -924,12 +1130,14 @@ function showDex(){
 
 // 선체 수리
 function showRepair(){
-  openModal(`<div class="mtitle">🛠️ 잠수정이 망가졌어요! (하트 0)</div>` + npc(
-    '폐그물에 부딪히거나 로봇팔로 바다 생물을 건드려서 잠수정이 망가졌어요. 로봇팔은 <b>폐그물에만</b> 쓰고, 그물에는 너무 가까이 가지 마세요!',
-    `<button class="btn gold" id="mFix">긴급 수리하고 계속하기 (-300점)</button>`));
-  on('mFix', () => {
-    S.stats.hp = CFG.MAX_HP; S.stats.score = Math.max(0, S.stats.score - 300); S.sub.invuln = 2.5;
-    closeModal(); floatText(S.sub.x, S.sub.y-50, '긴급 수리 완료! ♥ 회복', '#86efac');
+  say({
+    label: '🛠️ 잠수정 긴급 상황',
+    mood: 'worry',
+    text: '이런! 폐그물에 부딪히거나 로봇팔로 바다 생물을 건드려서 잠수정이 망가졌어요. 로봇팔은 <b>폐그물에만</b> 쓰고, 그물에는 너무 가까이 가지 마세요!',
+    btns: [{ text:'긴급 수리하고 계속하기 (-300점)', cls:'gold', fn: () => {
+      S.stats.hp = CFG.MAX_HP; S.stats.score = Math.max(0, S.stats.score - 300); S.sub.invuln = 2.5;
+      closeVN(); floatText(S.sub.x, S.sub.y-50, '긴급 수리 완료! ♥ 회복', '#86efac');
+    }}]
   });
 }
 
@@ -938,24 +1146,25 @@ function missingInfo(){
   const miss = CARDS.filter(c => !S.unlocked.has(c.id));
   return { miss, clean: Math.floor(S.stats.clean) };
 }
-function reportHtml(extended){
+function showReport(extended){
   const { miss, clean } = missingInfo();
   let text;
-  if (miss.length) text = `잠깐만요, 대원님! 정화도는 ${clean}%예요. 아직 열리지 않은 도감 카드가 있어요. <b>도감 6종</b>을 모두 열고 <b>정화도 100%</b>를 채워야 수료증을 드릴 수 있어요.`;
-  else text = `도감 6종은 모두 모았어요! 그런데 바다 정화도가 아직 ${clean}%예요. 바다를 100% 깨끗하게 만든 뒤 다시 보고해 주세요!`;
+  if (miss.length) text = `잠깐만요, 대원님! 정화도는 <b>${clean}%</b>예요. 아직 열리지 않은 도감 카드가 있어요. <b>도감 6종</b>을 모두 열고 <b>정화도 100%</b>를 채워야 수료증을 드릴 수 있어요.`;
+  else text = `도감 6종은 모두 모았군요! 그런데 바다 정화도가 아직 <b>${clean}%</b>예요. 바다를 100% 깨끗하게 만든 뒤 다시 보고해 주세요!`;
   const list = miss.length ? `<ul class="misslist">${miss.map(c=>`<li>${c.icon} ${c.quest}: ${Math.min(c.target,countOf(c.id))}/${c.target}</li>`).join('')}</ul>` : '';
   const ext = extended ? `<div class="exp" style="background:#fef9c3;color:#854d0e">⏱ 조사 시간이 모자라지 않도록 <b>${CFG.EXTEND}초</b>를 더 드렸어요!</div>` : '';
-  return `<div class="mtitle">📡 본부 보고 · 점검 결과</div>` + npc(text + list, `<button class="btn" id="mGo">바다로 돌아가 조사하기</button>`, ext);
+  say({ label:'📡 본부 보고 · 점검 결과', mood:'worry', text, extra: list + ext,
+        btns:[{ text:'바다로 돌아가 조사하기', fn: closeVN }] });
 }
 function tryReport(){
   if (!S || !S.running) return;
   if (allDone()) { startEnding(); return; }
-  openModal(reportHtml(false)); on('mGo', closeModal);
+  showReport(false);
 }
 function timeUp(){
   if (allDone()) { startEnding(); return; }
   S.timeLimit = S.elapsed + CFG.EXTEND;
-  openModal(reportHtml(true)); on('mGo', closeModal);
+  showReport(true);
 }
 
 // ---------- 마무리 ----------
@@ -973,40 +1182,46 @@ const REFLECT = [
   { c:'앞으로 일회용품과 페트병을 덜 쓰도록 노력할래요!', r:'정말 멋진 다짐이에요! 텀블러 챙기기, 장바구니 쓰기, 라벨 떼고 분리배출하기 같은 작은 습관이 모이면 바다가 이렇게 맑아져요.' }
 ];
 function endStep(i){
-  const st = S.stats;
+  const st = S.stats, label = '🌊 바다 정화 100% 완료 · 본부 브리핑';
   if (i === 0) {
-    openModal(`<div class="mtitle">🌊 바다 정화 100% 완료!</div>` + npc('와아! 저 맑은 에메랄드빛 바다를 보세요! 탁하고 어두웠던 바다가 반짝이는 산호초 바다로 다시 살아났어요. 정말 수고 많았어요!', `<button class="btn" id="mN">다음</button>`));
-    on('mN', () => endStep(1));
+    say({ label, mood:'happy', bright:true, text:'와아! 저 맑은 에메랄드빛 바다를 보세요! 탁하고 어두웠던 바다가 반짝이는 산호초 바다로 다시 살아났어요. 정말 수고 많았어요, 대원님!', next: () => endStep(1) });
   } else if (i === 1) {
-    openModal(`<div class="mtitle">📊 오늘의 작전 결과</div>` + npc(`오늘 대원님은 바다 쓰레기 <b>${st.trash}개</b>와 폐그물 <b>${st.nets}개</b>를 치우고, 바다 생물 <b>${st.rescued}마리</b>를 구해 주었어요! (도감 6/6 · <b>${st.score.toLocaleString()}점</b>)`, `<button class="btn" id="mN">다음</button>`));
-    on('mN', () => endStep(2));
+    say({ label, mood:'happy', bright:true, text:`오늘 대원님은 바다 쓰레기 <b>${st.trash}개</b>와 폐그물 <b>${st.nets}개</b>를 치우고, 바다 생물 <b>${st.rescued}마리</b>를 구해 주었어요! (도감 6/6 · <b>${st.score.toLocaleString()}점</b>)`, next: () => endStep(2) });
   } else if (i === 2) {
-    const ch = REFLECT.map((r,j)=>`<button class="choice" data-j="${j}">${r.c}</button>`).join('');
-    openModal(`<div class="mtitle">💬 작전 돌아보기</div>` + npc('이번 작전에서 어떤 순간이 가장 기억에 남나요?', '', `<div style="margin-top:10px">${ch}</div>`));
-    document.querySelectorAll('.choice').forEach(b => b.onclick = () => { SFX.click(); endReflect(+b.dataset.j); });
+    say({ label:'💬 작전 돌아보기', mood:'normal', bright:true, text:'이번 작전에서 어떤 순간이 가장 기억에 남나요?',
+      hint:'아래에서 하나를 골라 대화를 이어가세요',
+      extra: REFLECT.map((r,j) => `<button class="vchoice" data-j="${j}">${r.c}</button>`).join(''),
+      onReady: () => document.querySelectorAll('#vnExtra .vchoice').forEach(b => b.onclick = e => { e.stopPropagation(); SFX.click(); endReflect(+b.dataset.j); }) });
   }
 }
 function endReflect(j){
-  openModal(`<div class="mtitle">💬 작전 돌아보기</div>` + npc(REFLECT[j].r, `<button class="btn" id="mN">다음</button>`));
-  on('mN', askNick);
+  say({ label:'💬 작전 돌아보기', mood:'happy', bright:true, text: REFLECT[j].r, next: askNick });
 }
 function askNick(){
   const sug = ['푸른바다지킴이','산호수호자','아기거북친구','에코캡틴','돌고래구조대'];
-  openModal(`<div class="mtitle">🪪 수료증 별명 정하기</div>` + npc('이제 대원님의 활약을 기념하는 <b>바다 지킴이 수료증</b>을 드릴게요! 수료증에 새길 별명을 알려 주세요.', `<button class="btn" id="mReg">별명 등록하기</button>`,
-    `<input class="nick" id="nickIn" maxlength="12" placeholder="별명을 입력하세요 (12자 이내)" value="${esc(nickname)}"><div class="chips">${sug.map(s=>`<button data-s="${s}">${s}</button>`).join('')}</div><div class="err" id="nickErr"></div>`));
-  const inp = $('nickIn'); setTimeout(()=>inp.focus(), 100);
-  document.querySelectorAll('.chips button').forEach(b => b.onclick = () => { inp.value = b.dataset.s; });
+  say({ label:'🪪 수료증 별명 정하기', mood:'normal', bright:true,
+    text:'이제 대원님의 활약을 기념하는 <b>바다 지킴이 수료증</b>을 드릴 차례예요! 수료증에 새길 멋진 별명을 알려 주세요.',
+    hint:'별명을 입력하고 등록 버튼을 눌러 주세요',
+    extra:`<input class="nick" id="nickIn" maxlength="12" placeholder="별명을 입력하세요 (12자 이내)" value="${esc(nickname)}"><div class="chips">${sug.map(s=>`<button data-s="${s}">${s}</button>`).join('')}</div><div class="err" id="nickErr"></div>`,
+    btns:[{ text:'별명 등록하기', cls:'gold', fn: () => reg() }],
+    onReady: () => {
+      const inp = $('nickIn'); setTimeout(() => inp.focus(), 100);
+      inp.onclick = e => e.stopPropagation();
+      document.querySelectorAll('#vnExtra .chips button').forEach(b => b.onclick = e => { e.stopPropagation(); inp.value = b.dataset.s; });
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') reg(); });
+    }
+  });
   const reg = () => {
+    const inp = $('nickIn'); if (!inp) return;
     const v = inp.value.trim();
     if (!v) { $('nickErr').textContent = '별명을 한 글자 이상 입력해 주세요!'; return; }
     if (v.length > 12) { $('nickErr').textContent = '별명은 12자 이내로 입력해 주세요.'; return; }
     if (badNick(v)) { $('nickErr').textContent = '고운 말로 된 다른 별명을 써 주세요. 🙂'; return; }
-    nickname = v; SFX.click();
-    openModal(`<div class="mtitle">🪪 별명 등록 완료</div>` + npc(`"${esc(v)}" 대원님, 정말 멋진 이름이에요! 마지막으로 오늘 배운 내용으로 <b>퀴즈 3문제</b>를 풀면 수료증을 바로 드릴게요!`, `<button class="btn gold" id="mQ">퀴즈 풀기 (3문제)</button>`));
-    on('mQ', () => { quizSet = shuffle(QUIZ).slice(0,3); quiz(0); });
+    nickname = v;
+    say({ label:'🪪 별명 등록 완료', mood:'happy', bright:true,
+      text:`"${esc(v)}" 대원님, 정말 멋지고 든든한 이름이에요! 마지막으로 오늘 배운 내용으로 <b>퀴즈 3문제</b>를 풀면 수료증을 바로 드릴게요!`,
+      btns:[{ text:'최종 퀴즈 풀기 (3문제)', cls:'gold', fn: () => { quizSet = shuffle(QUIZ).slice(0,3); quiz(0); } }] });
   };
-  on('mReg', reg);
-  inp.addEventListener('keydown', e => { if (e.key === 'Enter') reg(); });
 }
 let quizSet = [];
 function quiz(i){
@@ -1198,6 +1413,7 @@ function startGame(){
 function typing(e){ const t = e.target; return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA'); }
 window.addEventListener('keydown', e => {
   if (typing(e)) return;
+  if (vnOpen()) { if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); vnAdvance(); } return; }
   if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
   if (!S || !S.running || S.paused) return;
   keys.add(e.code);
@@ -1223,6 +1439,7 @@ function holdBtn(id, key){
 holdBtn('aSuck','suck'); holdBtn('aArm','arm');
 $('aPulse').addEventListener('pointerdown', e => { e.preventDefault(); doPulse(); });
 $('bStart').onclick = () => { SFX.click(); startGame(); };
+$('vnBox').addEventListener('click', e => { if (e.target.closest('button,input')) return; vnAdvance(); });
 $('bRank').onclick = () => { SFX.click(); showRanking(true); };
 $('verLabel').textContent = CFG.VERSION;
 initRank();
