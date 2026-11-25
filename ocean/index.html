@@ -58,7 +58,7 @@ body.vn-on .sysbar{display:none}
 .gbtn.gb-dex{background:linear-gradient(#38bdf8,#0369a1)}
 .gbtn.gb-report{background:linear-gradient(#64748b,#334155)}
 .gbtn.gb-report.ready{background:linear-gradient(#4ade80,#15803d);animation:glow 1.1s infinite alternate}
-.gbtn.gb-report.ready::after{content:'보고 가능!';position:absolute;top:-10px;right:-6px;background:#fde047;color:#78350f;font-size:11px;padding:2px 7px;border-radius:99px;text-shadow:none}
+.gbtn.gb-report.ready::after{content:attr(data-ready);position:absolute;top:-10px;right:-6px;background:#fde047;color:#78350f;font-size:11px;padding:2px 7px;border-radius:99px;text-shadow:none}
 @keyframes glow{to{box-shadow:0 0 22px #4ade80,0 5px 0 rgba(0,0,0,.25)}}
 .quest{position:absolute;top:calc(52px + env(safe-area-inset-top));left:8px;width:250px;background:rgba(3,25,40,.65);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:8px 10px;pointer-events:auto}
 .quest h4{font-size:13px;color:#a5f3fc;cursor:pointer;display:flex;justify-content:space-between}
@@ -139,6 +139,7 @@ body.touch .hint{display:none}
 .certimg{width:100%;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
 .misslist{margin:10px 0 0 4px;font-size:14px;line-height:1.8}
 .tbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.btn-lang{background:rgba(14,116,144,.45)}
 .btn-rank{font-family:'Jua',sans-serif;font-size:20px;padding:10px 26px;border-radius:999px;background:rgba(255,255,255,.18);color:#fff;border:2px solid rgba(255,255,255,.5)}
 .t-foot{position:fixed;bottom:10px;left:14px;font-size:12px;color:rgba(255,255,255,.7)}
 .t-foot a{color:#a5f3fc;text-decoration:none;font-weight:700}
@@ -240,48 +241,48 @@ body.vn-on #hud{visibility:hidden}
 <canvas id="game"></canvas>
 
 <div id="title">
-  <div class="t-sub">BLUE SEA RESCUE TEAM · 해양 환경교육</div>
-  <div class="t-title">푸른바다 구조대</div>
-  <div class="t-desc">잠수정을 타고 바다 쓰레기를 치우고, 그물에 갇힌 바다 친구들을 구해 주세요!</div>
+  <div class="t-sub" data-i18n="tsub">BLUE SEA RESCUE TEAM · 해양 환경교육</div>
+  <div class="t-title" data-i18n="ttitle">푸른바다 구조대</div>
+  <div class="t-desc" data-i18n="tdesc">잠수정을 타고 바다 쓰레기를 치우고, 그물에 갇힌 바다 친구들을 구해 주세요!</div>
   <div class="t-cards">
-    <div class="t-card"><div class="ic">🌀</div><b>쓰레기 흡입</b><span>페트병·비닐·캔·미세플라스틱 수거</span></div>
-    <div class="t-card"><div class="ic">🦾</div><b>폐그물 걷기·구조</b><span>바다거북·돌고래 구출 작전</span></div>
-    <div class="t-card"><div class="ic">📖</div><b>도감·퀴즈·수료증</b><span>도감 6종을 모으면 수료증 발급</span></div>
+    <div class="t-card" data-i18n="tc1"><div class="ic">🌀</div><b>쓰레기 흡입</b><span>페트병·비닐·캔·미세플라스틱 수거</span></div>
+    <div class="t-card" data-i18n="tc2"><div class="ic">🦾</div><b>폐그물 걷기·구조</b><span>바다거북·돌고래 구출 작전</span></div>
+    <div class="t-card" data-i18n="tc3"><div class="ic">📖</div><b>도감·퀴즈·수료증</b><span>도감 6종을 모으면 수료증 발급</span></div>
   </div>
-  <button class="btn-start" id="bStart">출동하기</button>
-  <div class="tbar"><button class="btn-rank" id="bRank">🏆 랭킹 보기</button></div>
-  <div class="t-keys">이동 <kbd>WASD</kbd>·<kbd>방향키</kbd>·화면 드래그 &nbsp;|&nbsp; 흡입 <kbd>F</kbd> &nbsp;|&nbsp; 로봇팔 <kbd>Space</kbd> &nbsp;|&nbsp; 초음파 펄스 <kbd>E</kbd></div>
-  <div class="t-foot"><a href="../">← 함께 지키는 바다</a></div>
-  <div class="t-maker">만든이: 푸르이든 · <span id="verLabel"></span></div>
+  <button class="btn-start" id="bStart" data-i18n="start">출동하기</button>
+  <div class="tbar"><button class="btn-rank" id="bRank" data-i18n="rank">🏆 랭킹 보기</button><button class="btn-rank btn-lang" id="bLang">🌐 English</button></div>
+  <div class="t-keys" data-i18n="keys">이동 <kbd>WASD</kbd>·<kbd>방향키</kbd>·화면 드래그 &nbsp;|&nbsp; 흡입 <kbd>F</kbd> &nbsp;|&nbsp; 로봇팔 <kbd>Space</kbd> &nbsp;|&nbsp; 초음파 펄스 <kbd>E</kbd></div>
+  <div class="t-foot"><a href="../" data-i18n="foot">← 함께 지키는 바다</a></div>
+  <div class="t-maker"><span data-i18n="maker">만든이: 푸르이든</span> · <span id="verLabel"></span></div>
 </div>
 
 <div id="hud" class="hidden">
   <div class="topbar">
     <div class="chip" id="hStage">1단계</div>
     <div class="chip" id="hTime">⏱ 3:00</div>
-    <div class="cleanwrap"><span>정화도</span><div class="bar"><div id="hCleanBar"></div></div><b id="hClean">0%</b></div>
+    <div class="cleanwrap"><span data-i18n="clean">정화도</span><div class="bar"><div id="hCleanBar"></div></div><b id="hClean">0%</b></div>
     <div class="chip" id="hScore">⭐ 0점</div>
     <div class="chip" id="hHearts">♥♥♥♥♥</div>
   </div>
   <div class="gamebtns">
-    <button class="gbtn gb-dex" id="bDex"><span class="gi">📖</span>도감<em id="hDex">0/6</em></button>
-    <button class="gbtn gb-report" id="bReport"><span class="gi">📡</span>본부 보고</button>
+    <button class="gbtn gb-dex" id="bDex"><span class="gi">📖</span><span data-i18n="dex">도감</span><em id="hDex">0/6</em></button>
+    <button class="gbtn gb-report" id="bReport" data-ready="보고 가능!"><span class="gi">📡</span><span data-i18n="report">본부 보고</span></button>
   </div>
-  <div class="quest" id="quest"><h4 id="questHead"><span>🎯 정화 퀘스트</span><span id="questToggle">▲</span></h4><ul id="questList"></ul></div>
+  <div class="quest" id="quest"><h4 id="questHead"><span data-i18n="quest">🎯 정화 퀘스트</span><span id="questToggle">▲</span></h4><ul id="questList"></ul></div>
   <div class="actions">
-    <button class="act" id="aSuck">🌀<b>흡입</b><small>F</small></button>
-    <button class="act" id="aArm">🦾<b>로봇팔</b><small>Space</small></button>
-    <button class="act" id="aPulse">💥<b>펄스</b><small>E</small><i id="pulseCd"></i></button>
+    <button class="act" id="aSuck">🌀<b data-i18n="suck">흡입</b><small>F</small></button>
+    <button class="act" id="aArm">🦾<b data-i18n="arm">로봇팔</b><small>Space</small></button>
+    <button class="act" id="aPulse">💥<b data-i18n="pulse">펄스</b><small>E</small><i id="pulseCd"></i></button>
   </div>
   <div class="banner" id="banner"></div>
   <div class="toast" id="toast"></div>
-  <div class="hint">이동: WASD·방향키 또는 화면을 누른 채 드래그</div>
+  <div class="hint" data-i18n="hint">이동: WASD·방향키 또는 화면을 누른 채 드래그</div>
   <div class="joy" id="joy">
     <span class="joy-arrow" style="left:50%;top:8px;transform:translateX(-50%)">▲</span>
     <span class="joy-arrow" style="left:50%;bottom:8px;transform:translateX(-50%)">▼</span>
     <span class="joy-arrow" style="top:50%;left:9px;transform:translateY(-50%)">◀</span>
     <span class="joy-arrow" style="top:50%;right:9px;transform:translateY(-50%)">▶</span>
-    <div class="joy-knob" id="joyKnob">이동</div>
+    <div class="joy-knob" id="joyKnob" data-i18n="move">이동</div>
   </div>
 </div>
 
@@ -289,6 +290,7 @@ body.vn-on #hud{visibility:hidden}
   <button class="sbtn" id="bBgm" title="배경음악 켜기/끄기">🎵<small>BGM</small></button>
   <button class="sbtn" id="bSound" title="효과음 켜기/끄기">🔊<small>효과음</small></button>
   <button class="sbtn" id="bFull" title="전체화면">⛶<small>전체화면</small></button>
+  <button class="sbtn" id="bLang2" title="Language / 언어">🌐<small>EN</small></button>
 </div>
 <div id="vn" class="hidden">
   <div class="vn-shade"></div>
@@ -306,6 +308,24 @@ body.vn-on #hud{visibility:hidden}
 
 <script>
 'use strict';
+// ---------- 언어 (한국어 / English) ----------
+// 주소 끝에 ?lang=en 을 붙이거나 첫 화면의 🌐 버튼으로 바꿀 수 있어요. 고른 언어는 기억됩니다.
+let LANG = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get('lang');
+    if (q === 'en' || q === 'ko') return q;
+    // '함께 지키는 바다'(ecoSea.lang)와 고른 언어를 함께 씀
+    const saved = localStorage.getItem('oceanRescue.lang') || localStorage.getItem('ecoSea.lang');
+    return saved === 'en' ? 'en' : 'ko';
+  } catch(e) { return 'ko'; }
+})();
+const t = (ko, en) => LANG === 'en' ? en : ko;
+// 객체의 글자 항목을 언어에 따라 바뀌게 만들기 (한국어는 원래 값, 영어는 en 값)
+function dual(obj, en){
+  const ko = {};
+  for (const k of Object.keys(en)) { ko[k] = obj[k]; Object.defineProperty(obj, k, { get(){ return LANG === 'en' ? en[k] : ko[k]; }, enumerable:true, configurable:true }); }
+  return obj;
+}
 /* =========================================================
    푸른바다 구조대 — 해양 환경교육 게임 (만든이: 푸르이든)
    파일 하나로 동작합니다. GitHub Pages에 index.html로 올리면 끝!
@@ -326,8 +346,9 @@ const CFG = {
   NPC_ROLE: '해양연구원',
   GAME: '푸른바다 구조대',
   MAKER: '푸르이든',
-  VERSION: 'v2.1.0'
+  VERSION: 'v2.2'
 };
+dual(CFG, { NPC:'Dr. Woong', NPC_ROLE:'Marine Scientist', GAME:'Blue Sea Rescue Team' });
 
 const CARDS = [
   { id:'bottle', icon:'🧴', name:'페트병', title:'바다를 떠도는 페트병', quest:'페트병 수거', target:10, bonus:250, decomp:'약 450년 이상', danger:4,
@@ -350,6 +371,9 @@ const CARDS = [
     tip:'한번 퍼지면 치우기가 매우 어려워요. 처음부터 플라스틱을 덜 쓰는 것이 가장 좋은 방법이에요.' }
 ];
 
+const CARD_EN = {"bottle": {"name": "Plastic Bottle", "title": "Drifting Plastic Bottles", "quest": "Collect bottles", "decomp": "Over 450 years", "impact": "Plastic bottles carried to the sea by rivers and wind barely break down. Sunlight and waves slowly crumble them into microplastics.", "tip": "Empty it, peel off the label, crush it, and put it in the clear-plastic recycling bin."}, "bag": {"name": "Plastic Bag", "title": "Jellyfish-like Plastic Bags", "quest": "Collect bags", "decomp": "About 20–500 years", "impact": "A plastic bag swaying in the water looks just like a jellyfish. Sea turtles that eat jellyfish can swallow it by mistake and get badly hurt.", "tip": "Bring a reusable shopping bag instead of taking plastic bags."}, "cup": {"name": "Cups & Straws", "title": "Use-once Cups and Straws", "quest": "Collect cups", "decomp": "About 200–500 years", "impact": "Light cups and straws are easily blown into the sea. They can get caught on, or poke, seabirds and sea animals.", "tip": "Use your own tumbler or mug at cafés."}, "can": {"name": "Metal Can", "title": "Rusting Metal Cans", "quest": "Collect cans", "decomp": "About 50–200 years", "impact": "Cans that sink to the seabed rust and release harmful substances. Their sharp, torn edges can cut sea animals.", "tip": "Rinse cans, flatten them, and put them in the can recycling bin."}, "net": {"name": "Ghost Net", "title": "Ghost Nets that Keep Fishing", "quest": "Clear nets · Rescue", "decomp": "About 600 years", "impact": "Lost or abandoned nets drift with no owner and keep trapping fish, sea turtles and dolphins. This is called \"ghost fishing\".", "tip": "If you find fishing line or pieces of net on the beach, pick them up carefully and put them in a bin."}, "micro": {"name": "Microplastics", "title": "Hard-to-see Microplastics", "quest": "Clear microplastics", "decomp": "Almost never disappears", "impact": "Plastic pieces smaller than 5 mm. Plankton and small fish eat them, and they travel up the food chain to our plates.", "tip": "Once they spread, they are very hard to clean up. Using less plastic in the first place is the best way."}};
+CARDS.forEach(c => dual(c, CARD_EN[c.id]));
+
 const FIRST_FACT = {
   bottle:'🧴 페트병은 바다에서 450년 넘게 남아 있어요. 라벨을 떼고 분리배출해요!',
   bag:'🛍️ 바다거북은 비닐봉지를 해파리로 착각해 삼키곤 해요.',
@@ -358,11 +382,16 @@ const FIRST_FACT = {
   micro:'✨ 5mm보다 작은 플라스틱 조각은 먹이사슬을 따라 우리에게 돌아와요.'
 };
 
+dual(FIRST_FACT, {"bottle": "🧴 A plastic bottle can stay in the ocean for over 450 years. Peel off the label and recycle it!", "bag": "🛍️ Sea turtles often mistake plastic bags for jellyfish and swallow them.", "cup": "🥤 A cup used for just 10 minutes can stay in the sea for hundreds of years. Use a tumbler!", "can": "🥫 Cans in the sea rust and release harmful substances.", "micro": "✨ Plastic bits smaller than 5 mm travel up the food chain and come back to us."});
+
 const STAGES = {
   1:{ title:'1단계 · 얕은 바다', desc:'F키(흡입)로 쓰레기를, Space(로봇팔)로 폐그물을 치워요!' },
   2:{ title:'2단계 · 유령그물 구역', desc:'Space(로봇팔)로 폐그물을 걷어내고 갇힌 생물을 구해요!' },
   3:{ title:'3단계 · 미세플라스틱 해류', desc:'E키(초음파 펄스)로 반짝이는 작은 조각까지 한 번에!' }
 };
+
+const STAGE_EN = {"1": {"title": "Stage 1 · Shallow Sea", "desc": "Use F (Vacuum) for trash and Space (Robot Arm) for nets!"}, "2": {"title": "Stage 2 · Ghost Net Zone", "desc": "Use Space (Robot Arm) to pull away nets and free trapped animals!"}, "3": {"title": "Stage 3 · Microplastic Current", "desc": "Use E (Sonic Pulse) to clear tiny sparkling bits all at once!"}};
+for (const k of [1,2,3]) dual(STAGES[k], STAGE_EN[k]);
 
 const QUIZ = [
   { q:'바다로 흘러간 페트병이 자연에서 분해되는 데 걸리는 시간은 약 얼마일까요?', o:['약 1개월','약 1~2년','약 10~20년','약 450년 이상'], a:3, e:'페트병은 바다에서 450년 넘게 썩지 않고 떠다니다가 잘게 부서져 미세플라스틱이 돼요.' },
@@ -378,6 +407,8 @@ const QUIZ = [
   { q:'장을 볼 때 비닐봉지 쓰레기를 줄이는 방법은 무엇일까요?', o:['비닐봉지를 여러 장 받는다','장바구니를 챙긴다','물건마다 따로 담는다','봉지를 바다에 버린다'], a:1, e:'장바구니를 쓰면 바다로 갈 수 있는 비닐봉지가 줄어들어요.' },
   { q:'바다가 깨끗해지면 산호초에 어떤 좋은 일이 생길까요?', o:['햇빛이 잘 들어 산호와 해조류가 건강하게 자란다','산호가 모두 하얗게 변한다','물고기가 사라진다','바닷물이 짙어진다'], a:0, e:'맑은 바다에는 햇빛이 잘 들어와 산호초와 해조류가 건강하게 자라고, 많은 생물이 모여 살아요.' }
 ];
+const QUIZ_EN = [{"q": "About how long does it take a plastic bottle in the sea to break down?", "o": ["About 1 month", "About 1–2 years", "About 10–20 years", "Over 450 years"], "e": "Plastic bottles float in the sea for over 450 years and slowly break into microplastics."}, {"q": "Why do sea turtles often swallow plastic bags?", "o": ["The bags smell sweet", "They look like jellyfish, their food", "To build nests", "To block the sunlight"], "e": "A plastic bag swaying in the water looks like a jellyfish, so turtles mistake it for food."}, {"q": "What is the best habit for reducing cup and straw waste?", "o": ["Use two straws at a time", "Use your own tumbler or mug", "Leave used cups on the beach", "Put unwashed cups in paper recycling"], "e": "Tumblers and reusable cups keep single-use trash from reaching the sea."}, {"q": "What is the right way to recycle an aluminum can?", "o": ["Throw it in the trash with drink still inside", "Rinse it, flatten it, and put it in the can bin", "Tie it in a plastic bag and leave it by the sea", "Put it in the plastic bin"], "e": "Cans that are rinsed, flattened and put in the can bin can mostly be used again."}, {"q": "What do we call it when lost nets drift and keep trapping sea animals?", "o": ["Red tide", "Coral bleaching", "Ghost fishing", "Ocean desertification"], "e": "Abandoned nets stay in the sea for a long time and keep trapping turtles and dolphins. This is called ghost fishing."}, {"q": "Microplastics are plastic pieces smaller than what size?", "o": ["5 mm", "5 cm", "50 cm", "5 m"], "e": "Plastic pieces smaller than 5 mm are called microplastics."}, {"q": "Why are microplastics dangerous to people, too?", "o": ["They change the color of seawater", "They break ship propellers", "They travel up the food chain to our plates", "They heat up the seawater"], "e": "Plankton → small fish → big fish… microplastics can end up in the food we eat."}, {"q": "Which is NOT a correct way to recycle a clear plastic bottle?", "o": ["Empty it", "Peel off the label", "Crush it", "Throw it in the trash with the label on"], "e": "Empty it, remove the label, crush it, and put it in the clear-plastic recycling bin."}, {"q": "Where does most ocean trash come from?", "o": ["It falls from space", "From land, carried by rivers and wind", "Sea animals make it", "Undersea volcanoes"], "e": "Trash dropped on land is carried to the sea by rivers, streams and wind."}, {"q": "What should you do if you find tangled fishing line on the beach?", "o": ["Throw it into the sea", "Bury it in the sand", "Pick it up carefully and put it in a bin", "Just walk past it"], "e": "Fishing line and pieces of net can trap sea animals. Pick them up carefully so you don't get hurt."}, {"q": "How can you reduce plastic bag waste when shopping?", "o": ["Take lots of plastic bags", "Bring a reusable bag", "Bag each item separately", "Throw bags into the sea"], "e": "Using a reusable bag means fewer plastic bags can end up in the sea."}, {"q": "What good thing happens to coral reefs when the sea gets clean?", "o": ["Sunlight reaches them, so corals and seaweed grow healthy", "All the corals turn white", "The fish disappear", "The water gets darker"], "e": "In clear water, sunlight reaches the reef, corals and seaweed grow well, and many creatures gather to live there."}];
+QUIZ.forEach((q, i) => dual(q, QUIZ_EN[i]));
 
 const AVATAR = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="웅이 박사">
   <path d="M14 100 C16 78 32 70 50 70 C68 70 84 78 86 100Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
@@ -777,12 +808,12 @@ function removeNet(n){
     if (S.stats.hp < CFG.MAX_HP) S.stats.hp++;
     const c = makeCreature(n.trapped, n.x, n.y, Math.random()<.5?1:-1); c.escape = true; c.vx *= 2.4;
     S.creatures.push(c);
-    floatText(n.x, n.y-40, '구조 성공! +380 ♥', '#86efac'); SFX.rescue();
+    floatText(n.x, n.y-40, t('구조 성공! +380 ♥','Rescued! +380 ♥'), '#86efac'); SFX.rescue();
     for (let i=0;i<4;i++) S.particles.push({ x:n.x + rand(-20,20), y:n.y + rand(-10,10), vx:rand(-30,30), vy:-rand(40,80), life:1.2, size:0, color:'!', emoji:'💙' });
-    if (S.stats.rescued === 1) toast('🐢 그물에서 벗어난 바다 친구가 다시 자유롭게 헤엄쳐요!');
+    if (S.stats.rescued === 1) toast(t('🐢 그물에서 벗어난 바다 친구가 다시 자유롭게 헤엄쳐요!','🐢 Free from the net, our sea friend swims happily again!'));
   } else {
     S.stats.nets++; S.stats.score += 280; addClean(3);
-    floatText(n.x, n.y-40, '폐그물 인양! +280', '#fde68a'); SFX.net();
+    floatText(n.x, n.y-40, t('폐그물 인양! +280','Net removed! +280'), '#fde68a'); SFX.net();
   }
 }
 function hurt(msg){
@@ -800,7 +831,7 @@ function checkCards(){
     }
   }
   if (S.cardQueue.length && !modalOpen()) showCardPopup(S.cardQueue.shift());
-  if (allDone() && !S.readyNotified) { S.readyNotified = true; toast('🎉 도감 6종 완성 & 정화도 100%! "본부 보고" 버튼을 눌러 보고하세요.'); }
+  if (allDone() && !S.readyNotified) { S.readyNotified = true; toast(t('🎉 도감 6종 완성 & 정화도 100%! "본부 보고" 버튼을 눌러 보고하세요.','🎉 All 6 cards & 100% clean! Press "Report to HQ".')); }
 }
 const allCards = () => S.unlocked.size === CARDS.length;
 const allDone = () => allCards() && S.stats.clean >= 100;
@@ -817,7 +848,7 @@ function doPulse(){
       if (t.kind === 'micro') { collect(t); n++; } else t.pulled = true;
     }
   }
-  floatText(S.sub.x, S.sub.y-50, n ? `초음파 펄스! 미세플라스틱 ${n}개` : '초음파 펄스!', '#e9d5ff');
+  floatText(S.sub.x, S.sub.y-50, n ? t(`초음파 펄스! 미세플라스틱 ${n}개`, `Sonic pulse! ${n} microplastics`) : t('초음파 펄스!','Sonic pulse!'), '#e9d5ff');
 }
 
 // ---------- 업데이트 ----------
@@ -877,10 +908,10 @@ function update(dt){
   if (act.suck) {
     for (const c of s.creatures) {
       if (!c.escape && dist(c.x,c.y,mx,my) < CFG.SUCK_R && (c.x-sub.x)*sub.face > -30 && c.protT <= 0) {
-        c.protT = 2; floatText(c.x, c.y - c.r - 12, 'AI 보호 · 흡입 차단 ✓', '#86efac');
+        c.protT = 2; floatText(c.x, c.y - c.r - 12, t('AI 보호 · 흡입 차단 ✓','AI protected · not sucked ✓'), '#86efac');
       }
     }
-    for (const n of s.nets) if (dist(n.x,n.y,mx,my) < CFG.SUCK_R && throttled('netsuck', 3)) floatText(n.x, n.y-n.r-14, '폐그물은 로봇팔(Space)로!', '#fde68a');
+    for (const n of s.nets) if (dist(n.x,n.y,mx,my) < CFG.SUCK_R && throttled('netsuck', 3)) floatText(n.x, n.y-n.r-14, t('폐그물은 로봇팔(Space)로!','Use the robot arm (Space) for nets!'), '#fde68a');
   }
 
   // 로봇팔
@@ -904,7 +935,7 @@ function update(dt){
         if (!c.escape && dist(c.x,c.y,tx,ty) < c.r + 14 && c.hitT <= 0) {
           c.hitT = 2; c.boost = 1; c.tvy = (c.y >= sub.y ? 1 : -1) * 60;
           S.particles.push({ x:c.x, y:c.y-c.r, vx:0, vy:-30, life:.9, size:0, color:'!', emoji:'💢' });
-          hurt('바다 생물을 공격하면 안 돼요! -1♥');
+          hurt(t('바다 생물을 공격하면 안 돼요! -1♥',"Don't hit sea animals! -1♥"));
           break;
         }
       }
@@ -917,7 +948,7 @@ function update(dt){
     n.ph += dt; n.x += n.vx*dt; n.y += Math.sin(n.ph*.8)*10*dt;
     if (n.x < -n.r - 30) n.dead = true;
     if (!act.arm && dist(n.x,n.y,sub.x,sub.y) < n.r + 20) {
-      hurt('폐그물에 걸렸어요! 로봇팔로 걷어내요 -1♥');
+      hurt(t('폐그물에 걸렸어요! 로봇팔로 걷어내요 -1♥','Caught in a net! Use the robot arm -1♥'));
       const d = dist(n.x,n.y,sub.x,sub.y) || 1;
       sub.vx = (sub.x-n.x)/d*360; sub.vy = (sub.y-n.y)/d*360;
     }
@@ -1463,11 +1494,11 @@ function setText(id, v){ if (lastHud[id] !== v) { lastHud[id] = v; $(id).textCon
 function updateHUD(){
   if (!S) return;
   const left = Math.max(0, Math.ceil(S.timeLimit - S.elapsed));
-  setText('hStage', `${S.stage}단계`);
+  setText('hStage', t(`${S.stage}단계`, `Stage ${S.stage}`));
   setText('hTime', `⏱ ${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}`);
   const c = Math.floor(S.stats.clean);
   setText('hClean', c + '%'); $('hCleanBar').style.width = c + '%';
-  setText('hScore', `⭐ ${S.stats.score.toLocaleString()}점`);
+  setText('hScore', t(`⭐ ${S.stats.score.toLocaleString()}점`, `⭐ ${S.stats.score.toLocaleString()} pts`));
   setText('hHearts', '♥'.repeat(S.stats.hp) + '♡'.repeat(CFG.MAX_HP - S.stats.hp));
   setText('hDex', `${S.unlocked.size}/6`);
   $('bReport').classList.toggle('ready', allDone());
@@ -1601,18 +1632,18 @@ function say(o){
   document.body.classList.add('vn-on');
   if (S) S.paused = true;
   act.suck = act.arm = false; keys.clear(); pointer.active = false; joyReset();
-  $('vnLabel').textContent = o.label || `📡 ${CFG.GAME} · 본부 통신`;
-  $('vnName').textContent = CFG.NPC; $('vnRole').textContent = `${CFG.GAME} 수석 ${CFG.NPC_ROLE}`;
+  $('vnLabel').textContent = o.label || t(`📡 ${CFG.GAME} · 본부 통신`, `📡 ${CFG.GAME} · HQ Channel`);
+  $('vnName').textContent = CFG.NPC; $('vnRole').textContent = t(`${CFG.GAME} 수석 ${CFG.NPC_ROLE}`, `Chief ${CFG.NPC_ROLE}, ${CFG.GAME}`);
   const sk = $('vnSkip');
-  if (o.skip) { sk.classList.remove('hidden'); sk.textContent = o.skipText || '건너뛰기 →'; sk.onclick = e => { e.stopPropagation(); SFX.click(); o.skip(); }; }
+  if (o.skip) { sk.classList.remove('hidden'); sk.textContent = o.skipText || t('건너뛰기 →','Skip →'); sk.onclick = e => { e.stopPropagation(); SFX.click(); o.skip(); }; }
   else sk.classList.add('hidden');
   if (first) { vnMood = null; const c = $('vnChar'); c.classList.remove('enter'); void c.offsetWidth; c.classList.add('enter'); }
   setChar(o.mood || 'normal');
   vnNext = o.next || null;
   const btns = (o.btns || []).slice();
-  if (!btns.length && o.next) btns.push({ text:'다음 ›', fn:o.next });
+  if (!btns.length && o.next) btns.push({ text:t('다음 ›','Next ›'), fn:o.next });
   $('vnBtns').innerHTML = ''; $('vnExtra').innerHTML = '';
-  $('vnHint').textContent = o.next ? '대화창을 클릭하거나 Enter를 누르면 넘어가요' : (o.hint || '');
+  $('vnHint').textContent = o.next ? t('대화창을 클릭하거나 Enter를 누르면 넘어가요','Tap the box or press Enter to continue') : (o.hint || '');
   const box = $('vnBox'), txt = $('vnText');
   const finish = () => {
     clearInterval(vnTyping); vnTyping = null; vnFinish = null;
@@ -1645,20 +1676,26 @@ function vnAdvance(){
 function on(id, fn){ const el = $(id); if (el) el.onclick = () => { SFX.click(); fn(); }; }
 
 // 출동 브리핑
-const BRIEF = [
+const BRIEF_KO = () => [
   `반가워요, 구조대원님! 저는 ${CFG.GAME}의 ${CFG.NPC}예요. 지금 우리 바다가 버려진 플라스틱과 폐그물 때문에 탁하고 어둡게 변하고 있어요.`,
   `잠수정에는 바다 생물은 지켜 주고 <b>쓰레기만 골라 빨아들이는 흡입기(F키)</b>가 있어요. 커다란 폐그물과 그물에 갇힌 생물은 <b>로봇팔(Space키)</b>로만 구할 수 있어요. 로봇팔로 바다 생물을 건드리면 안 돼요!`,
   `쓰레기를 모아 <b>해양오염 도감 6종</b>을 모두 열고, 바다 정화도를 <b>100%</b>로 만들어 주세요. 시간은 3분 30초! 준비됐나요?`
 ];
+const BRIEF_EN = () => [
+  `Welcome, rescue crew! I'm ${CFG.NPC} of the ${CFG.GAME}. Our sea is turning dark and murky because of plastic and abandoned fishing nets.`,
+  `Your submarine has a <b>smart vacuum (F key)</b> that protects sea animals and sucks up only trash. Big ghost nets and trapped animals can only be handled with the <b>robot arm (Space key)</b>. Never touch sea animals with the robot arm!`,
+  `Collect trash to unlock all <b>6 Ocean Pollution Guide cards</b> and bring the sea to <b>100% clean</b>. You have 3 minutes 30 seconds. Ready?`
+];
+const brief = () => LANG === 'en' ? BRIEF_EN() : BRIEF_KO();
 function showBriefing(i=0){
-  const last = i === BRIEF.length-1;
+  const B = brief(), last = i === B.length-1;
   say({
-    label: `📡 긴급 출동 브리핑 · ${CFG.GAME}`,
+    label: t(`📡 긴급 출동 브리핑 · ${CFG.GAME}`, `📡 Emergency Briefing · ${CFG.GAME}`),
     mood: i === 0 ? 'worry' : 'normal',
-    text: BRIEF[i],
-    skip: beginRun, skipText: '브리핑 건너뛰기 →',
+    text: B[i],
+    skip: beginRun, skipText: t('브리핑 건너뛰기 →','Skip briefing →'),
     next: last ? null : () => showBriefing(i+1),
-    btns: last ? [{ text:'퀘스트 수락 · 바다로 출동! 🚤', cls:'gold', fn:beginRun }] : []
+    btns: last ? [{ text:t('퀘스트 수락 · 바다로 출동! 🚤','Accept quest · Dive in! 🚤'), cls:'gold', fn:beginRun }] : []
   });
 }
 function beginRun(){
@@ -1669,34 +1706,34 @@ function beginRun(){
 // 도감 카드 팝업
 function cardHtml(c){
   return `<div class="bigcard"><div class="dic">${c.icon}</div><h3>${c.title}</h3>
-    <div class="row"><b>분해 기간</b> · ${c.decomp} &nbsp; <b>위험도</b> <span class="stars">${'★'.repeat(c.danger)}${'☆'.repeat(5-c.danger)}</span></div>
-    <div class="row"><b>바다에 주는 피해</b><br>${c.impact}</div>
-    <div class="row"><b>💡 생활 속 실천</b><br>${c.tip}</div></div>`;
+    <div class="row"><b>${t('분해 기간','Breakdown time')}</b> · ${c.decomp} &nbsp; <b>${t('위험도','Danger')}</b> <span class="stars">${'★'.repeat(c.danger)}${'☆'.repeat(5-c.danger)}</span></div>
+    <div class="row"><b>${t('바다에 주는 피해','Harm to the sea')}</b><br>${c.impact}</div>
+    <div class="row"><b>💡 ${t('생활 속 실천','What you can do')}</b><br>${c.tip}</div></div>`;
 }
 function showCardPopup(c){
   SFX.card();
-  openModal(`<div class="mtitle">🎉 도감 카드 획득! <small style="font-size:15px;color:#d97706">+${c.bonus}점</small></div>${cardHtml(c)}
-    <div class="btns"><button class="btn sub" id="mAll">전체 도감 보기</button><button class="btn" id="mOk">확인하고 계속하기</button></div>`);
+  openModal(`<div class="mtitle">🎉 ${t('도감 카드 획득!','New guide card!')} <small style="font-size:15px;color:#d97706">+${c.bonus}${t('점',' pts')}</small></div>${cardHtml(c)}
+    <div class="btns"><button class="btn sub" id="mAll">${t('전체 도감 보기','View full guide')}</button><button class="btn" id="mOk">${t('확인하고 계속하기','Got it, continue')}</button></div>`);
   on('mOk', closeModal); on('mAll', showDex);
 }
 function showDex(){
   const cards = CARDS.map(c => S.unlocked.has(c.id)
-    ? `<div class="dcard"><div class="dic">${c.icon}</div><b>${c.title}</b><div class="meta">분해 기간 ${c.decomp} · 위험도 <span class="stars">${'★'.repeat(c.danger)}</span></div><div style="margin-top:4px">${c.impact}</div><div style="margin-top:4px;color:#0e7490"><b style="display:inline;font-size:13px">💡</b> ${c.tip}</div></div>`
-    : `<div class="dcard locked"><div class="dic">❔</div><b>??? (아직 잠김)</b>${c.quest} ${Math.min(c.target,countOf(c.id))}/${c.target}<br>목표를 채우면 카드가 열려요.</div>`).join('');
-  openModal(`<div class="mtitle">📖 해양오염 도감 (${S.unlocked.size}/6) <small style="font-size:13px;color:#64748b">· 일시정지 중</small></div><div class="dex">${cards}</div>
-    <div class="btns"><button class="btn" id="mBack">바다로 돌아가기</button></div>`);
+    ? `<div class="dcard"><div class="dic">${c.icon}</div><b>${c.title}</b><div class="meta">${t('분해 기간','Breakdown')} ${c.decomp} · ${t('위험도','Danger')} <span class="stars">${'★'.repeat(c.danger)}</span></div><div style="margin-top:4px">${c.impact}</div><div style="margin-top:4px;color:#0e7490"><b style="display:inline;font-size:13px">💡</b> ${c.tip}</div></div>`
+    : `<div class="dcard locked"><div class="dic">❔</div><b>??? (${t('아직 잠김','Locked')})</b>${c.quest} ${Math.min(c.target,countOf(c.id))}/${c.target}<br>${t('목표를 채우면 카드가 열려요.','Reach the goal to unlock this card.')}</div>`).join('');
+  openModal(`<div class="mtitle">📖 ${t('해양오염 도감','Ocean Pollution Guide')} (${S.unlocked.size}/6) <small style="font-size:13px;color:#64748b">· ${t('일시정지 중','Paused')}</small></div><div class="dex">${cards}</div>
+    <div class="btns"><button class="btn" id="mBack">${t('바다로 돌아가기','Back to the sea')}</button></div>`);
   on('mBack', closeModal);
 }
 
 // 선체 수리
 function showRepair(){
   say({
-    label: '🛠️ 잠수정 긴급 상황',
+    label: t('🛠️ 잠수정 긴급 상황','🛠️ Submarine Emergency'),
     mood: 'worry',
-    text: '이런! 폐그물에 부딪히거나 로봇팔로 바다 생물을 건드려서 잠수정이 망가졌어요. 로봇팔은 <b>폐그물에만</b> 쓰고, 그물에는 너무 가까이 가지 마세요!',
-    btns: [{ text:'긴급 수리하고 계속하기 (-300점)', cls:'gold', fn: () => {
+    text: t('이런! 폐그물에 부딪히거나 로봇팔로 바다 생물을 건드려서 잠수정이 망가졌어요. 로봇팔은 <b>폐그물에만</b> 쓰고, 그물에는 너무 가까이 가지 마세요!', "Oh no! You bumped into a net or touched a sea animal with the robot arm, and the submarine broke down. Use the robot arm <b>only on nets</b>, and don't get too close to them!"),
+    btns: [{ text:t('긴급 수리하고 계속하기 (-300점)','Emergency repair & continue (-300 pts)'), cls:'gold', fn: () => {
       S.stats.hp = CFG.MAX_HP; S.stats.score = Math.max(0, S.stats.score - 300); S.sub.invuln = 2.5;
-      closeVN(); floatText(S.sub.x, S.sub.y-50, '긴급 수리 완료! ♥ 회복', '#86efac');
+      closeVN(); floatText(S.sub.x, S.sub.y-50, t('긴급 수리 완료! ♥ 회복','Repaired! ♥ restored'), '#86efac');
     }}]
   });
 }
@@ -1709,12 +1746,12 @@ function missingInfo(){
 function showReport(extended){
   const { miss, clean } = missingInfo();
   let text;
-  if (miss.length) text = `잠깐만요, 대원님! 정화도는 <b>${clean}%</b>예요. 아직 열리지 않은 도감 카드가 있어요. <b>도감 6종</b>을 모두 열고 <b>정화도 100%</b>를 채워야 수료증을 드릴 수 있어요.`;
-  else text = `도감 6종은 모두 모았군요! 그런데 바다 정화도가 아직 <b>${clean}%</b>예요. 바다를 100% 깨끗하게 만든 뒤 다시 보고해 주세요!`;
+  if (miss.length) text = LANG === 'en' ? `Wait a moment, crew! The sea is <b>${clean}%</b> clean, but some guide cards are still locked. Unlock all <b>6 guide cards</b> and reach <b>100% clean</b> to earn your certificate.` : `잠깐만요, 대원님! 정화도는 <b>${clean}%</b>예요. 아직 열리지 않은 도감 카드가 있어요. <b>도감 6종</b>을 모두 열고 <b>정화도 100%</b>를 채워야 수료증을 드릴 수 있어요.`;
+  else text = LANG === 'en' ? `You collected all 6 guide cards! But the sea is only <b>${clean}%</b> clean. Make it 100% clean and report again!` : `도감 6종은 모두 모았군요! 그런데 바다 정화도가 아직 <b>${clean}%</b>예요. 바다를 100% 깨끗하게 만든 뒤 다시 보고해 주세요!`;
   const list = miss.length ? `<ul class="misslist">${miss.map(c=>`<li>${c.icon} ${c.quest}: ${Math.min(c.target,countOf(c.id))}/${c.target}</li>`).join('')}</ul>` : '';
-  const ext = extended ? `<div class="exp" style="background:#fef9c3;color:#854d0e">⏱ 조사 시간이 모자라지 않도록 <b>${CFG.EXTEND}초</b>를 더 드렸어요!</div>` : '';
-  say({ label:'📡 본부 보고 · 점검 결과', mood:'worry', text, extra: list + ext,
-        btns:[{ text:'바다로 돌아가 조사하기', fn: closeVN }] });
+  const ext = extended ? `<div class="exp" style="background:#fef9c3;color:#854d0e">${t(`⏱ 조사 시간이 모자라지 않도록 <b>${CFG.EXTEND}초</b>를 더 드렸어요!`, `⏱ I've given you <b>${CFG.EXTEND} more seconds</b> so you have enough time!`)}</div>` : '';
+  say({ label:t('📡 본부 보고 · 점검 결과','📡 HQ Report · Check Results'), mood:'worry', text, extra: list + ext,
+        btns:[{ text:t('바다로 돌아가 조사하기','Back to the sea'), fn: closeVN }] });
 }
 function tryReport(){
   if (!S || !S.running) return;
@@ -1741,29 +1778,30 @@ const REFLECT = [
   { c:'눈에 잘 안 보이는 미세플라스틱이 생각보다 많아서 놀랐어요.', r:'관찰력이 대단해요! 플라스틱은 햇빛과 파도에 부서져 미세플라스틱이 되고, 먹이사슬을 따라 우리에게 돌아와요. 처음부터 덜 쓰는 것이 가장 중요해요.' },
   { c:'앞으로 일회용품과 페트병을 덜 쓰도록 노력할래요!', r:'정말 멋진 다짐이에요! 텀블러 챙기기, 장바구니 쓰기, 라벨 떼고 분리배출하기 같은 작은 습관이 모이면 바다가 이렇게 맑아져요.' }
 ];
+REFLECT.forEach((r, i) => dual(r, [{"c": "Rescuing the sea turtles and dolphins trapped in nets felt the best!", "r": "That's right! \"Ghost fishing\" by abandoned nets is a huge threat to sea life. Thanks to you, our friends can swim freely in the wide ocean again."}, {"c": "I was surprised there were so many hard-to-see microplastics.", "r": "Great observation! Plastic breaks into microplastics in sunlight and waves, then travels up the food chain back to us. Using less from the start matters most."}, {"c": "I'll try to use fewer single-use items and plastic bottles!", "r": "What a wonderful promise! Small habits like bringing a tumbler, using a reusable bag and recycling properly add up to a sea this clear."}][i]));
 function endStep(i){
-  const st = S.stats, label = '🌊 바다 정화 100% 완료 · 본부 브리핑';
+  const st = S.stats, label = t('🌊 바다 정화 100% 완료 · 본부 브리핑','🌊 Sea 100% Clean · HQ Briefing');
   if (i === 0) {
-    say({ label, mood:'happy', bright:true, text:'와아! 저 맑은 에메랄드빛 바다를 보세요! 탁하고 어두웠던 바다가 반짝이는 산호초 바다로 다시 살아났어요. 정말 수고 많았어요, 대원님!', next: () => endStep(1) });
+    say({ label, mood:'happy', bright:true, text:t('와아! 저 맑은 에메랄드빛 바다를 보세요! 탁하고 어두웠던 바다가 반짝이는 산호초 바다로 다시 살아났어요. 정말 수고 많았어요, 대원님!','Wow! Look at that clear emerald sea! The dark, murky water has come back to life as a sparkling coral reef. Great job, crew!'), next: () => endStep(1) });
   } else if (i === 1) {
-    say({ label, mood:'happy', bright:true, text:`오늘 대원님은 바다 쓰레기 <b>${st.trash}개</b>와 폐그물 <b>${st.nets}개</b>를 치우고, 바다 생물 <b>${st.rescued}마리</b>를 구해 주었어요! (도감 6/6 · <b>${st.score.toLocaleString()}점</b>)`, next: () => endStep(2) });
+    say({ label, mood:'happy', bright:true, text: LANG === 'en' ? `Today you cleaned up <b>${st.trash} pieces of trash</b> and <b>${st.nets} ghost nets</b>, and rescued <b>${st.rescued} sea animals</b>! (Guide 6/6 · <b>${st.score.toLocaleString()} pts</b>)` : `오늘 대원님은 바다 쓰레기 <b>${st.trash}개</b>와 폐그물 <b>${st.nets}개</b>를 치우고, 바다 생물 <b>${st.rescued}마리</b>를 구해 주었어요! (도감 6/6 · <b>${st.score.toLocaleString()}점</b>)`, next: () => endStep(2) });
   } else if (i === 2) {
-    say({ label:'💬 작전 돌아보기', mood:'normal', bright:true, text:'이번 작전에서 어떤 순간이 가장 기억에 남나요?',
-      hint:'아래에서 하나를 골라 대화를 이어가세요',
+    say({ label:t('💬 작전 돌아보기','💬 Mission Review'), mood:'normal', bright:true, text:t('이번 작전에서 어떤 순간이 가장 기억에 남나요?','What moment do you remember most from this mission?'),
+      hint:t('아래에서 하나를 골라 대화를 이어가세요','Choose one below to continue'),
       extra: REFLECT.map((r,j) => `<button class="vchoice" data-j="${j}">${r.c}</button>`).join(''),
       onReady: () => document.querySelectorAll('#vnExtra .vchoice').forEach(b => b.onclick = e => { e.stopPropagation(); SFX.click(); endReflect(+b.dataset.j); }) });
   }
 }
 function endReflect(j){
-  say({ label:'💬 작전 돌아보기', mood:'happy', bright:true, text: REFLECT[j].r, next: askNick });
+  say({ label:t('💬 작전 돌아보기','💬 Mission Review'), mood:'happy', bright:true, text: REFLECT[j].r, next: askNick });
 }
 function askNick(){
-  const sug = ['푸른바다지킴이','산호수호자','아기거북친구','에코캡틴','돌고래구조대'];
-  say({ label:'🪪 수료증 별명 정하기', mood:'normal', bright:true,
-    text:'이제 대원님의 활약을 기념하는 <b>바다 지킴이 수료증</b>을 드릴 차례예요! 수료증에 새길 멋진 별명을 알려 주세요.',
-    hint:'별명을 입력하고 등록 버튼을 눌러 주세요',
-    extra:`<input class="nick" id="nickIn" maxlength="12" placeholder="별명을 입력하세요 (12자 이내)" value="${esc(nickname)}"><div class="chips">${sug.map(s=>`<button data-s="${s}">${s}</button>`).join('')}</div><div class="err" id="nickErr"></div>`,
-    btns:[{ text:'별명 등록하기', cls:'gold', fn: () => reg() }],
+  const sug = t(['푸른바다지킴이','산호수호자','아기거북친구','에코캡틴','돌고래구조대'], ['SeaGuardian','CoralKeeper','TurtleBuddy','EcoCaptain','DolphinHero']);
+  say({ label:t('🪪 수료증 별명 정하기','🪪 Choose a Certificate Nickname'), mood:'normal', bright:true,
+    text:t('이제 대원님의 활약을 기념하는 <b>바다 지킴이 수료증</b>을 드릴 차례예요! 수료증에 새길 멋진 별명을 알려 주세요.',"Now it's time for your <b>Ocean Guardian Certificate</b>! Tell me a cool nickname to put on it."),
+    hint:t('별명을 입력하고 등록 버튼을 눌러 주세요','Enter a nickname and press Register'),
+    extra:`<input class="nick" id="nickIn" maxlength="12" placeholder="${t('별명을 입력하세요 (12자 이내)','Enter a nickname (max 12 characters)')}" value="${esc(nickname)}"><div class="chips">${sug.map(s=>`<button data-s="${s}">${s}</button>`).join('')}</div><div class="err" id="nickErr"></div>`,
+    btns:[{ text:t('별명 등록하기','Register nickname'), cls:'gold', fn: () => reg() }],
     onReady: () => {
       const inp = $('nickIn'); setTimeout(() => inp.focus(), 100);
       inp.onclick = e => e.stopPropagation();
@@ -1774,20 +1812,20 @@ function askNick(){
   const reg = () => {
     const inp = $('nickIn'); if (!inp) return;
     const v = inp.value.trim();
-    if (!v) { $('nickErr').textContent = '별명을 한 글자 이상 입력해 주세요!'; return; }
-    if (v.length > 12) { $('nickErr').textContent = '별명은 12자 이내로 입력해 주세요.'; return; }
-    if (badNick(v)) { $('nickErr').textContent = '고운 말로 된 다른 별명을 써 주세요. 🙂'; return; }
+    if (!v) { $('nickErr').textContent = t('별명을 한 글자 이상 입력해 주세요!','Please enter at least one character!'); return; }
+    if (v.length > 12) { $('nickErr').textContent = t('별명은 12자 이내로 입력해 주세요.','Nicknames can be up to 12 characters.'); return; }
+    if (badNick(v)) { $('nickErr').textContent = t('고운 말로 된 다른 별명을 써 주세요. 🙂','Please choose a kinder nickname. 🙂'); return; }
     nickname = v;
-    say({ label:'🪪 별명 등록 완료', mood:'happy', bright:true,
-      text:`"${esc(v)}" 대원님, 정말 멋지고 든든한 이름이에요! 마지막으로 오늘 배운 내용으로 <b>퀴즈 3문제</b>를 풀면 수료증을 바로 드릴게요!`,
-      btns:[{ text:'최종 퀴즈 풀기 (3문제)', cls:'gold', fn: () => { quizSet = shuffle(QUIZ).slice(0,3); quiz(0); } }] });
+    say({ label:t('🪪 별명 등록 완료','🪪 Nickname Registered'), mood:'happy', bright:true,
+      text: LANG === 'en' ? `"${esc(v)}" — what a great name! Finally, answer <b>3 quiz questions</b> about what you learned today, and I'll give you your certificate right away!` : `"${esc(v)}" 대원님, 정말 멋지고 든든한 이름이에요! 마지막으로 오늘 배운 내용으로 <b>퀴즈 3문제</b>를 풀면 수료증을 바로 드릴게요!`,
+      btns:[{ text:t('최종 퀴즈 풀기 (3문제)','Take the final quiz (3 questions)'), cls:'gold', fn: () => { quizSet = shuffle(QUIZ).slice(0,3); quiz(0); } }] });
   };
 }
 let quizSet = [];
 function quiz(i){
   const q = quizSet[i];
   const order = shuffle(q.o.map((t,idx)=>idx));
-  openModal(`<div class="mtitle">❓ 수료증 확인 퀴즈</div><div class="qnum">${esc(nickname)} 대원 · ${i+1} / 3</div><div class="qtext">${q.q}</div>
+  openModal(`<div class="mtitle">❓ ${t('수료증 확인 퀴즈','Certificate Quiz')}</div><div class="qnum">${t(`${esc(nickname)} 대원`, `Crew ${esc(nickname)}`)} · ${i+1} / 3</div><div class="qtext">${q.q}</div>
     <div id="qOpts">${order.map(idx=>`<button class="choice" data-i="${idx}">${q.o[idx]}</button>`).join('')}</div><div id="qRes"></div>`);
   let solved = false;
   document.querySelectorAll('#qOpts .choice').forEach(b => b.onclick = () => {
@@ -1796,11 +1834,11 @@ function quiz(i){
     if (idx === q.a) {
       solved = true; b.classList.add('right'); SFX.rescue();
       const last = i === 2;
-      $('qRes').innerHTML = `<div class="exp">⭕ 정답이에요! ${q.e}</div><div class="btns"><button class="btn ${last?'gold':''}" id="mQn">${last?'퀴즈 통과! 수료증 받기 🏅':'다음 문제'}</button></div>`;
+      $('qRes').innerHTML = `<div class="exp">⭕ ${t('정답이에요!','Correct!')} ${q.e}</div><div class="btns"><button class="btn ${last?'gold':''}" id="mQn">${last ? t('퀴즈 통과! 수료증 받기 🏅','Quiz passed! Get certificate 🏅') : t('다음 문제','Next question')}</button></div>`;
       on('mQn', () => last ? showCert() : quiz(i+1));
     } else {
       b.classList.add('wrong'); b.disabled = true; SFX.wrong();
-      $('qRes').innerHTML = `<div class="err" style="margin-top:10px">아쉬워요! 도감에서 배운 내용을 떠올리며 다른 답을 골라 보세요.</div>`;
+      $('qRes').innerHTML = `<div class="err" style="margin-top:10px">${t('아쉬워요! 도감에서 배운 내용을 떠올리며 다른 답을 골라 보세요.','Not quite! Think about what you learned in the guide and pick another answer.')}</div>`;
     }
   });
 }
@@ -1856,10 +1894,10 @@ async function loadRank(today){
 let rankToken = 0;
 async function showRanking(today=true, highlight=null, back=null){
   const my = ++rankToken;
-  openModal(`<div class="mtitle">🏆 바다 지킴이 랭킹</div>
-    <div class="tabs"><button class="tab ${today?'on':''}" id="rkT">오늘</button><button class="tab ${!today?'on':''}" id="rkA">전체</button></div>
-    <div id="rkBody">불러오는 중...</div>
-    <div class="btns"><button class="btn" id="rkClose">${back ? '수료증으로 돌아가기' : '닫기'}</button></div>`);
+  openModal(`<div class="mtitle">🏆 ${t('바다 지킴이 랭킹','Ocean Guardian Rankings')}</div>
+    <div class="tabs"><button class="tab ${today?'on':''}" id="rkT">${t('오늘','Today')}</button><button class="tab ${!today?'on':''}" id="rkA">${t('전체','All time')}</button></div>
+    <div id="rkBody">${t('불러오는 중...','Loading...')}</div>
+    <div class="btns"><button class="btn" id="rkClose">${back ? t('수료증으로 돌아가기','Back to certificate') : t('닫기','Close')}</button></div>`);
   on('rkT', () => showRanking(true, highlight, back));
   on('rkA', () => showRanking(false, highlight, back));
   on('rkClose', () => back ? back() : closeModal());
@@ -1868,10 +1906,10 @@ async function showRanking(today=true, highlight=null, back=null){
   const medal = i => ['🥇','🥈','🥉'][i] || (i+1);
   const fmt = sec => `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;
   $('rkBody').innerHTML = rows.length
-    ? `<table class="rktable"><tr><th>순위</th><th>별명</th><th>점수</th><th>쓰레기</th><th>구조</th><th>걸린 시간</th></tr>${rows.map((r,i) =>
+    ? `<table class="rktable"><tr>${t(['순위','별명','점수','쓰레기','구조','걸린 시간'],['Rank','Nickname','Score','Trash','Rescued','Time']).map(h => `<th>${h}</th>`).join('')}</tr>${rows.map((r,i) =>
         `<tr class="${r.id===highlight?'me':''}"><td>${medal(i)}</td><td class="nm">${esc(r.nickname)}</td><td>${(r.score||0).toLocaleString()}</td><td>${r.trash||0}</td><td>${r.rescued||0}</td><td>${fmt(r.seconds||0)}</td></tr>`).join('')}</table>`
-      + (RANK.mode === 'local' ? `<div class="rknote">※ 지금은 이 기기에 저장된 기록만 보여요.</div>` : '')
-    : `<div class="rknote" style="font-size:15px;padding:20px 0;text-align:center">${today ? '오늘' : '아직'} 등록된 기록이 없어요. 첫 번째 바다 지킴이가 되어 보세요!</div>`;
+      + (RANK.mode === 'local' ? `<div class="rknote">${t('※ 지금은 이 기기에 저장된 기록만 보여요.','※ Showing records saved on this device only.')}</div>` : '')
+    : `<div class="rknote" style="font-size:15px;padding:20px 0;text-align:center">${LANG === 'en' ? `No records ${today ? 'today' : 'yet'}. Be the first Ocean Guardian!` : `${today ? '오늘' : '아직'} 등록된 기록이 없어요. 첫 번째 바다 지킴이가 되어 보세요!`}</div>`;
 }
 
 // ---------- 수료증 ----------
@@ -1891,18 +1929,20 @@ async function makeCert(){
   g.strokeStyle = '#0e7490'; g.lineWidth = 14; g.strokeRect(28,28,1344,934);
   g.strokeStyle = '#67e8f9'; g.lineWidth = 3; g.strokeRect(54,54,1292,882);
   g.textAlign = 'center';
-  g.fillStyle = '#0e7490'; g.font = `700 26px ${F}`; g.fillText(`${CFG.GAME} · 해양 환경교육 프로그램`, 700, 125);
-  g.fillStyle = '#0c4a6e'; g.font = `80px ${J}`; g.fillText('바다 지킴이 수료증', 700, 222);
-  const grade = (st.score >= 8000 || st.rescued >= 8) ? '🏅 최우수 바다 지킴이 (A등급)' : '🎖️ 명예 바다 지킴이';
+  g.fillStyle = '#0e7490'; g.font = `700 26px ${F}`; g.fillText(t(`${CFG.GAME} · 해양 환경교육 프로그램`, `${CFG.GAME} · Ocean Education Program`), 700, 125);
+  g.fillStyle = '#0c4a6e'; g.font = `80px ${J}`; g.fillText(t('바다 지킴이 수료증','Ocean Guardian Certificate'), 700, 222);
+  const grade = (st.score >= 8000 || st.rescued >= 8) ? t('🏅 최우수 바다 지킴이 (A등급)','🏅 Top Ocean Guardian (Grade A)') : t('🎖️ 명예 바다 지킴이','🎖️ Honorary Ocean Guardian');
   g.fillStyle = '#d97706'; g.font = `900 32px ${F}`; g.fillText(grade, 700, 282);
-  g.fillStyle = '#0f172a'; g.font = `900 58px ${F}`; g.fillText(`${nickname} 대원`, 700, 380);
-  const nw = Math.min(700, g.measureText(`${nickname} 대원`).width + 80);
+  g.fillStyle = '#0f172a'; g.font = `900 58px ${F}`; g.fillText(t(`${nickname} 대원`, `Crew ${nickname}`), 700, 380);
+  const nw = Math.min(700, g.measureText(t(`${nickname} 대원`, `Crew ${nickname}`)).width + 80);
   g.strokeStyle = '#0ea5e9'; g.lineWidth = 3; g.beginPath(); g.moveTo(700-nw/2,400); g.lineTo(700+nw/2,400); g.stroke();
   g.fillStyle = '#334155'; g.font = `400 27px ${F}`;
-  g.fillText(`위 대원은 「${CFG.GAME}」 바다 정화 작전에 참여하여`, 700, 462);
-  g.fillText('오염된 바다를 맑은 산호초 바다로 되살리고 그물에 갇힌 바다 생물을 구하였기에', 700, 504);
-  g.fillText('명예 바다 지킴이로 임명하며 이 수료증을 드립니다.', 700, 546);
-  const boxes = [['수거한 쓰레기', st.trash+'개'], ['걷어낸 폐그물', st.nets+'개'], ['구조한 생물', st.rescued+'마리'], ['종합 점수', st.score.toLocaleString()+'점']];
+  g.fillText(t(`위 대원은 「${CFG.GAME}」 바다 정화 작전에 참여하여`, `This certifies that this crew member took part in the “${CFG.GAME}” mission,`), 700, 462);
+  g.fillText(t('오염된 바다를 맑은 산호초 바다로 되살리고 그물에 갇힌 바다 생물을 구하였기에','brought the polluted sea back to a clear coral reef, and rescued animals trapped in nets,'), 700, 504);
+  g.fillText(t('명예 바다 지킴이로 임명하며 이 수료증을 드립니다.','and is hereby named an Honorary Ocean Guardian.'), 700, 546);
+  const boxes = LANG === 'en'
+    ? [['Trash collected', String(st.trash)], ['Nets removed', String(st.nets)], ['Animals rescued', String(st.rescued)], ['Total score', st.score.toLocaleString()]]
+    : [['수거한 쓰레기', st.trash+'개'], ['걷어낸 폐그물', st.nets+'개'], ['구조한 생물', st.rescued+'마리'], ['종합 점수', st.score.toLocaleString()+'점']];
   boxes.forEach((b,i) => {
     const x = 150 + i*285;
     g.fillStyle = '#fff'; g.strokeStyle = '#7dd3fc'; g.lineWidth = 3;
@@ -1911,11 +1951,11 @@ async function makeCert(){
     g.fillStyle = '#0c4a6e'; g.font = `900 36px ${F}`; g.fillText(b[1], x+125, 680);
   });
   g.fillStyle = '#0e7490'; g.font = `700 22px ${F}`;
-  g.fillText('나의 실천 약속: “일회용 플라스틱 줄이기 & 올바른 분리배출”', 700, 750);
+  g.fillText(t('나의 실천 약속: “일회용 플라스틱 줄이기 & 올바른 분리배출”','My promise: “Use less single-use plastic & recycle properly”'), 700, 750);
   const d = new Date(), no = 'SEA-' + d.getFullYear() + '-' + String(Date.now()).slice(-6);
   g.textAlign = 'left'; g.fillStyle = '#475569'; g.font = `400 22px ${F}`;
-  g.fillText(`발급일: ${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`, 110, 815);
-  g.fillText(`발급 번호: ${no}`, 110, 850);
+  g.fillText(t(`발급일: ${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`, `Issued: ${d.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}`), 110, 815);
+  g.fillText(t(`발급 번호: ${no}`, `Certificate No.: ${no}`), 110, 850);
   g.textAlign = 'right'; g.fillStyle = '#0f172a'; g.font = `900 28px ${F}`;
   g.fillText(`${CFG.GAME} ${CFG.NPC_ROLE}`, 1150, 815);
   g.fillText(`${CFG.NPC}`, 1150, 855);
@@ -1923,14 +1963,14 @@ async function makeCert(){
   g.save(); g.translate(1225, 825); g.rotate(-.15);
   g.strokeStyle = '#dc2626'; g.lineWidth = 5; g.beginPath(); g.arc(0,0,52,0,6.28); g.stroke();
   g.lineWidth = 2; g.beginPath(); g.arc(0,0,44,0,6.28); g.stroke();
-  g.fillStyle = '#dc2626'; g.textAlign = 'center'; g.font = `900 20px ${F}`; g.fillText('웅이', 0, -6); g.fillText('박사', 0, 20);
+  g.fillStyle = '#dc2626'; g.textAlign = 'center'; g.font = `900 20px ${F}`; g.fillText(t('웅이','Dr.'), 0, -6); g.fillText(t('박사','Woong'), 0, 20);
   g.restore();
-  g.textAlign = 'center'; g.fillStyle = 'rgba(15,23,42,.45)'; g.font = `400 16px ${F}`; g.fillText(`만든이: ${CFG.MAKER}`, 700, 925);
+  g.textAlign = 'center'; g.fillStyle = 'rgba(15,23,42,.45)'; g.font = `400 16px ${F}`; g.fillText(t(`만든이: ${CFG.MAKER}`, `Made by ${CFG.MAKER}`), 700, 925);
   return c.toDataURL('image/png');
 }
 let certUrl = '';
 async function showCert(){
-  openModal(`<div class="mtitle">🏅 수료증 발급 중...</div>`);
+  openModal(`<div class="mtitle">🏅 ${t('수료증 발급 중...','Creating your certificate...')}</div>`);
   certUrl = await makeCert();
   certModal();
   if (!S.recordId) {
@@ -1943,15 +1983,15 @@ async function showCert(){
 async function updateMyRank(){
   const rows = await loadRank(true);
   const i = rows.findIndex(r => r.id === S.recordId);
-  if ($('myRank') && i >= 0) $('myRank').textContent = `🏆 오늘 랭킹 ${i+1}위 (오늘 ${rows.length}명 참여)`;
+  if ($('myRank') && i >= 0) $('myRank').textContent = t(`🏆 오늘 랭킹 ${i+1}위 (오늘 ${rows.length}명 참여)`, `🏆 Today's rank: #${i+1} (${rows.length} ${rows.length === 1 ? 'player' : 'players'} today)`);
 }
 function certModal(){
   const url = certUrl;
-  openModal(`<div class="mtitle">🏅 바다 지킴이 수료증</div><img class="certimg" src="${url}" alt="수료증">
-    <div class="myrank" id="myRank">${S.recordId && S.recordId !== 'saving' ? '' : '랭킹에 기록하는 중...'}</div>
-    <div class="btns"><button class="btn sub" id="cHome">처음 화면으로</button><button class="btn sub" id="cAgain">다시 바다 지키기</button><button class="btn" id="cRank">🏆 랭킹 보기</button><button class="btn" id="cPrint">🖨️ 인쇄하기</button><button class="btn gold" id="cSave">💾 이미지 저장</button></div>`);
+  openModal(`<div class="mtitle">🏅 ${t('바다 지킴이 수료증','Ocean Guardian Certificate')}</div><img class="certimg" src="${url}" alt="${t('수료증','Certificate')}">
+    <div class="myrank" id="myRank">${S.recordId && S.recordId !== 'saving' ? '' : t('랭킹에 기록하는 중...','Saving to the rankings...')}</div>
+    <div class="btns"><button class="btn sub" id="cHome">${t('처음 화면으로','Home')}</button><button class="btn sub" id="cAgain">${t('다시 바다 지키기','Play again')}</button><button class="btn" id="cRank">🏆 ${t('랭킹 보기','Rankings')}</button><button class="btn" id="cPrint">🖨️ ${t('인쇄하기','Print')}</button><button class="btn gold" id="cSave">💾 ${t('이미지 저장','Save image')}</button></div>`);
   if (S.recordId && S.recordId !== 'saving') updateMyRank();
-  on('cSave', () => { const a = document.createElement('a'); a.href = url; a.download = `바다지킴이_수료증_${nickname}.png`; document.body.appendChild(a); a.click(); a.remove(); });
+  on('cSave', () => { const a = document.createElement('a'); a.href = url; a.download = t(`바다지킴이_수료증_${nickname}.png`, `Ocean_Guardian_Certificate_${nickname}.png`); document.body.appendChild(a); a.click(); a.remove(); });
   on('cPrint', () => { $('printImg').src = url; setTimeout(() => window.print(), 200); });
   on('cRank', () => showRanking(true, S.recordId, certModal));
   on('cAgain', () => { closeModal(); startGame(); });
@@ -2008,20 +2048,20 @@ $('bDex').onclick = () => { if (S && S.running && !modalOpen()) { SFX.click(); s
 $('bReport').onclick = () => { if (!modalOpen()) { SFX.click(); tryReport(); } };
 $('bBgm').onclick = () => { bgmToggle(); };
 bgmLabel();
-$('bSound').onclick = () => { sfxOn = !sfxOn; $('bSound').innerHTML = (sfxOn ? '🔊' : '🔈') + '<small>효과음</small>'; $('bSound').classList.toggle('off', !sfxOn); SFX.click(); };
+$('bSound').onclick = () => { sfxOn = !sfxOn; $('bSound').innerHTML = (sfxOn ? '🔊' : '🔈') + `<small>${t('효과음','SFX')}</small>`; $('bSound').classList.toggle('off', !sfxOn); SFX.click(); };
 // 전체화면 (아이폰 사파리는 지원하지 않아 버튼을 숨김)
 (function(){
   const de = document.documentElement, b = $('bFull');
   const req = de.requestFullscreen || de.webkitRequestFullscreen, exit = document.exitFullscreen || document.webkitExitFullscreen;
   const isFS = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
   if (!req) { b.style.display = 'none'; return; }
-  const label = () => { b.innerHTML = (isFS() ? '🗗' : '⛶') + `<small>${isFS() ? '창 모드' : '전체화면'}</small>`; };
+  const label = window.fsLabel = () => { b.innerHTML = (isFS() ? '🗗' : '⛶') + `<small>${isFS() ? t('창 모드','Window') : t('전체화면','Full')}</small>`; };
   b.onclick = () => {
     SFX.click();
     try {
       if (isFS()) exit.call(document);
-      else { const r = req.call(de, { navigationUI:'hide' }); if (r && r.catch) r.catch(() => toast('이 브라우저에서는 전체화면을 쓸 수 없어요.')); }
-    } catch(e) { toast('이 브라우저에서는 전체화면을 쓸 수 없어요.'); }
+      else { const r = req.call(de, { navigationUI:'hide' }); if (r && r.catch) r.catch(() => toast(t('이 브라우저에서는 전체화면을 쓸 수 없어요.','Fullscreen is not available in this browser.'))); }
+    } catch(e) { toast(t('이 브라우저에서는 전체화면을 쓸 수 없어요.','Fullscreen is not available in this browser.')); }
   };
   ['fullscreenchange','webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, () => { label(); setTimeout(resize, 150); }));
   label();
@@ -2084,6 +2124,40 @@ function resetZoom(){
   window.scrollTo(0, 0);
 }
 if (window.visualViewport) visualViewport.addEventListener('resize', () => { if (visualViewport.scale > 1.01 && S && S.running && !S.paused) resetZoom(); });
+
+
+// ---------- 화면 글자 바꾸기 (한국어 ↔ English) ----------
+const STATIC_EN = {"tsub": "BLUE SEA RESCUE TEAM · Ocean Education", "ttitle": "Blue Sea Rescue Team", "tdesc": "Pilot a submarine to clean up ocean trash and rescue sea friends trapped in nets!", "tc1": "<div class=\"ic\">🌀</div><b>Trash Vacuum</b><span>Collect bottles, bags, cans &amp; microplastics</span>", "tc2": "<div class=\"ic\">🦾</div><b>Clear Nets · Rescue</b><span>Save sea turtles and dolphins</span>", "tc3": "<div class=\"ic\">📖</div><b>Guide · Quiz · Certificate</b><span>Collect all 6 cards to earn a certificate</span>", "start": "Dive In!", "rank": "🏆 Rankings", "keys": "Move <kbd>WASD</kbd>·<kbd>Arrows</kbd>·Drag &nbsp;|&nbsp; Vacuum <kbd>F</kbd> &nbsp;|&nbsp; Robot Arm <kbd>Space</kbd> &nbsp;|&nbsp; Sonic Pulse <kbd>E</kbd>", "foot": "← Saving Our Sea Together", "maker": "Made by 푸르이든", "clean": "Clean", "dex": "Guide", "report": "Report to HQ", "quest": "🎯 Cleanup Quests", "suck": "Vacuum", "arm": "Arm", "pulse": "Pulse", "hint": "Move: WASD / arrow keys, or drag on the screen", "move": "Move"};
+const STATIC_KO = {};
+document.querySelectorAll('[data-i18n]').forEach(el => { STATIC_KO[el.dataset.i18n] = el.innerHTML; });
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.title = t('푸른바다 구조대 | 해양 환경교육 게임', 'Blue Sea Rescue Team | Ocean Education Game');
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n, v = LANG === 'en' ? STATIC_EN[k] : STATIC_KO[k];
+    if (v != null && el.innerHTML !== v) el.innerHTML = v;
+  });
+  $('bLang').textContent = t('🌐 English', '🌐 한국어');
+  $('bLang2').innerHTML = `🌐<small>${t('EN', '한국어')}</small>`;
+  $('bBgm').title = t('배경음악 켜기/끄기', 'Music on/off');
+  $('bSound').title = t('효과음 켜기/끄기', 'Sound effects on/off');
+  $('bFull').title = t('전체화면', 'Fullscreen');
+  $('bReport').dataset.ready = t('보고 가능!', 'Ready!');
+  $('printImg').alt = t('수료증', 'Certificate');
+  $('bSound').innerHTML = (sfxOn ? '🔊' : '🔈') + `<small>${t('효과음','SFX')}</small>`;
+  if (window.fsLabel) window.fsLabel();
+  Object.keys(lastHud).forEach(k => delete lastHud[k]);   // 상태 막대·퀘스트 목록 다시 쓰기
+  if (S) updateHUD();
+  setTimeout(placeQuest, 50);
+}
+function toggleLang(){
+  LANG = LANG === 'en' ? 'ko' : 'en';
+  try { localStorage.setItem('oceanRescue.lang', LANG); localStorage.setItem('ecoSea.lang', LANG); } catch(e) {}
+  SFX.click(); applyLang();
+}
+$('bLang').onclick = toggleLang;
+$('bLang2').onclick = toggleLang;
+applyLang();
 
 // ---------- 루프 ----------
 let last = performance.now();
