@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=1.6.0">
+  <link rel="stylesheet" href="css/style.css?v=1.7.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌊</text></svg>">
 </head>
 <body>
@@ -16,25 +16,26 @@
 
   <!-- 상단 공통 버튼 -->
   <div class="top-tools">
-    <button id="btnSound" class="tool-btn" title="소리 켜기/끄기">🔊</button>
-    <button id="btnFull" class="tool-btn" title="전체 화면">⛶</button>
+    <button id="btnLang" class="tool-btn lang-btn" data-i18n="langBtn" data-i18n-title="langTitle">🌐 English</button>
+    <button id="btnSound" class="tool-btn" data-i18n-title="soundTitle" title="소리 켜기/끄기">🔊</button>
+    <button id="btnFull" class="tool-btn" data-i18n-title="fullTitle" title="전체 화면">⛶</button>
   </div>
 
   <!-- ① 시작 화면 -->
   <section id="scr-start" class="screen active">
     <div class="title-box">
-      <div class="title-badge">한국 🤝 말레이시아</div>
-      <h1 class="game-title"><span>함께</span> <span>지키는</span> <span>바다</span></h1>
-      <p class="subtitle">두 나라가 함께 환경지킴이가 되면 바다가 내려가요!</p>
+      <div class="title-badge" data-i18n="badge">한국 🤝 말레이시아</div>
+      <h1 class="game-title" data-i18n="title"><span>함께</span> <span>지키는</span> <span>바다</span></h1>
+      <p class="subtitle" data-i18n="subtitle">두 나라가 함께 환경지킴이가 되면 바다가 내려가요!</p>
       <div class="start-buttons">
         <button class="big-btn btn-1p" data-go="setup1">
-          <span class="bb-text">1인 모드</span><span class="bb-sub">컴퓨터 친구와 함께</span>
+          <span class="bb-text" data-i18n="mode1">1인 모드</span><span class="bb-sub" data-i18n="mode1Sub">컴퓨터 친구와 함께</span>
         </button>
         <button class="big-btn btn-2p" data-go="setup2">
-          <span class="bb-text">2인 모드</span><span class="bb-sub">친구와 한 나라씩</span>
+          <span class="bb-text" data-i18n="mode2">2인 모드</span><span class="bb-sub" data-i18n="mode2Sub">친구와 한 나라씩</span>
         </button>
       </div>
-      <button class="link-btn" data-go="ranking">🏆 환경지킴이 랭킹 보기</button>
+      <button class="link-btn" data-go="ranking" data-i18n="rankBtn">🏆 환경지킴이 랭킹 보기</button>
       <div id="statsBanner" class="stats-banner"></div>
     </div>
   </section>
@@ -42,26 +43,26 @@
   <!-- ② 1인 모드 설정 -->
   <section id="scr-setup1" class="screen">
     <div class="card-box">
-      <h2>어느 나라 환경지킴이가 될까요?</h2>
+      <h2 data-i18n="pickCountry">어느 나라 환경지킴이가 될까요?</h2>
       <div class="country-picks">
         <button class="country-pick" data-country="korea">
           <svg class="pick-mascot" viewBox="-60 -125 120 135" id="pickKorea"></svg>
-          <span class="cp-name">한국</span>
-          <span class="cp-sub">반달가슴곰 반디와 함께</span>
+          <span class="cp-name" data-i18n="korea">한국</span>
+          <span class="cp-sub" data-i18n="withBandi">반달가슴곰 반디와 함께</span>
         </button>
         <button class="country-pick" data-country="malaysia">
           <svg class="pick-mascot" viewBox="-60 -125 120 135" id="pickMalaysia"></svg>
-          <span class="cp-name">말레이시아</span>
-          <span class="cp-sub">말레이맥 타피와 함께</span>
+          <span class="cp-name" data-i18n="malaysia">말레이시아</span>
+          <span class="cp-sub" data-i18n="withTapi">말레이맥 타피와 함께</span>
         </button>
       </div>
-      <label class="nick-label">내 별명
-        <input id="nick1" class="nick-input" maxlength="8" placeholder="별명 (최대 8글자)" autocomplete="off">
+      <label class="nick-label"><span data-i18n="myNick">내 별명</span>
+        <input id="nick1" class="nick-input" maxlength="8" placeholder="별명 (최대 8글자)" data-i18n-ph="nickPh" autocomplete="off">
       </label>
       <p class="form-msg" id="msg1"></p>
       <div class="row-btns">
-        <button class="sub-btn" data-go="start">◀ 처음으로</button>
-        <button class="main-btn" id="go1">다음 ▶</button>
+        <button class="sub-btn" data-go="start" data-i18n="home">◀ 처음으로</button>
+        <button class="main-btn" id="go1" data-i18n="next">다음 ▶</button>
       </div>
     </div>
   </section>
@@ -69,23 +70,23 @@
   <!-- ③ 2인 모드 설정 -->
   <section id="scr-setup2" class="screen">
     <div class="card-box">
-      <h2>한 명씩 나라를 맡아 주세요!</h2>
+      <h2 data-i18n="oneEach">한 명씩 나라를 맡아 주세요!</h2>
       <div class="two-nicks">
         <div class="nick-side korea">
           <svg class="pick-mascot" viewBox="-60 -125 120 135" id="pick2Korea"></svg>
-          <div class="ns-title">한국 친구 <span class="keycaps"><kbd>A</kbd><kbd>D</kbd></span></div>
-          <input id="nickKo" class="nick-input" maxlength="8" placeholder="별명" autocomplete="off">
+          <div class="ns-title"><span data-i18n="koFriend">한국 친구</span> <span class="keycaps"><kbd>A</kbd><kbd>D</kbd></span></div>
+          <input id="nickKo" class="nick-input" maxlength="8" placeholder="별명" data-i18n-ph="nickPh2" autocomplete="off">
         </div>
         <div class="nick-side malaysia">
           <svg class="pick-mascot" viewBox="-60 -125 120 135" id="pick2Malaysia"></svg>
-          <div class="ns-title">말레이시아 친구 <span class="keycaps"><kbd>←</kbd><kbd>→</kbd></span></div>
-          <input id="nickMy" class="nick-input" maxlength="8" placeholder="별명" autocomplete="off">
+          <div class="ns-title"><span data-i18n="myFriend">말레이시아 친구</span> <span class="keycaps"><kbd>←</kbd><kbd>→</kbd></span></div>
+          <input id="nickMy" class="nick-input" maxlength="8" placeholder="별명" data-i18n-ph="nickPh2" autocomplete="off">
         </div>
       </div>
       <p class="form-msg" id="msg2"></p>
       <div class="row-btns">
-        <button class="sub-btn" data-go="start">◀ 처음으로</button>
-        <button class="main-btn" id="go2">다음 ▶</button>
+        <button class="sub-btn" data-go="start" data-i18n="home">◀ 처음으로</button>
+        <button class="main-btn" id="go2" data-i18n="next">다음 ▶</button>
       </div>
     </div>
   </section>
@@ -93,18 +94,18 @@
   <!-- ④ 게임 방법 -->
   <section id="scr-howto" class="screen">
     <div class="card-box howto">
-      <h2>🌊 이렇게 해요</h2>
-      <p class="howto-lead">상황 카드가 나오면 <b class="hl-good">환경을 지키는 행동</b>을 빨리 골라요!</p>
+      <h2 data-i18n="howTitle">🌊 이렇게 해요</h2>
+      <p class="howto-lead" data-i18n="howLead">상황 카드가 나오면 <b class="hl-good">환경을 지키는 행동</b>을 빨리 골라요!</p>
       <div class="rule-grid">
-        <div class="rule good"><div class="r-emo">🙆‍♀️ + 🙆‍♂️</div><div class="r-who">두 나라 모두 실천</div><div class="r-res">바다가 <b>내려가요</b> ⬇</div></div>
-        <div class="rule half"><div class="r-emo">🙆 + 🙅</div><div class="r-who">한 나라만 실천</div><div class="r-res">바다가 <b>조금</b> 올라가요 ⬆</div></div>
-        <div class="rule bad"><div class="r-emo">🙅 + 🙅</div><div class="r-who">둘 다 안 함</div><div class="r-res">바다가 <b>많이</b> 올라가요 ⬆⬆</div></div>
+        <div class="rule good"><div class="r-emo">🙆‍♀️ + 🙆‍♂️</div><div class="r-who" data-i18n="ruleBoth">두 나라 모두 실천</div><div class="r-res" data-i18n="ruleBothRes">바다가 <b>내려가요</b> ⬇</div></div>
+        <div class="rule half"><div class="r-emo">🙆 + 🙅</div><div class="r-who" data-i18n="ruleOne">한 나라만 실천</div><div class="r-res" data-i18n="ruleOneRes">바다가 <b>조금</b> 올라가요 ⬆</div></div>
+        <div class="rule bad"><div class="r-emo">🙅 + 🙅</div><div class="r-who" data-i18n="ruleNone">둘 다 안 함</div><div class="r-res" data-i18n="ruleNoneRes">바다가 <b>많이</b> 올라가요 ⬆⬆</div></div>
       </div>
       <div class="howto-keys" id="howtoKeys"></div>
       <p class="howto-tip" id="howtoTip">⏱ 시간 안에 고르지 못하면 실천하지 않은 것으로 쳐요. 빨리 고를수록 점수가 더 높아요!</p>
       <div class="row-btns">
-        <button class="sub-btn" id="howtoBack">◀ 뒤로</button>
-        <button class="main-btn pulse" id="btnPlay">시작! <small>(Enter)</small></button>
+        <button class="sub-btn" id="howtoBack" data-i18n="back">◀ 뒤로</button>
+        <button class="main-btn pulse" id="btnPlay" data-i18n="play">시작! <small>(Enter)</small></button>
       </div>
     </div>
   </section>
@@ -112,16 +113,16 @@
   <!-- ⑤ 게임 -->
   <section id="scr-game" class="screen game">
     <div class="hud">
-      <div class="hud-round">라운드 <b id="roundNo">1</b> / <span id="roundMax">10</span></div>
+      <div class="hud-round"><span data-i18n="round">라운드</span> <b id="roundNo">1</b> / <span id="roundMax">10</span></div>
       <div class="hud-center">
         <div class="sea-gauge">
-          <span class="sg-label">해수면</span>
+          <span class="sg-label" data-i18n="seaLevel">해수면</span>
           <div class="sg-bar"><div class="sg-fill" id="seaFill"></div><div class="sg-mark" id="seaMark">🌊</div></div>
           <span class="sg-state" id="seaState">보통</span>
         </div>
         <div class="round-timer"><div id="timerFill"></div></div>
       </div>
-      <button class="sub-btn small" id="btnQuit">그만하기</button>
+      <button class="sub-btn small" id="btnQuit" data-i18n="quit">그만하기</button>
     </div>
 
     <div class="panels">
@@ -142,9 +143,9 @@
       <div class="together-line" id="togetherLine"></div>
       <div class="result-players" id="resultPlayers"></div>
       <div class="row-btns">
-        <button class="sub-btn" data-go="start">🏠 처음으로</button>
-        <button class="sub-btn" data-go="ranking">🏆 랭킹 보기</button>
-        <button class="main-btn" id="btnAgain">🔁 다시 하기</button>
+        <button class="sub-btn" data-go="start" data-i18n="toHome">🏠 처음으로</button>
+        <button class="sub-btn" data-go="ranking" data-i18n="toRank">🏆 랭킹 보기</button>
+        <button class="main-btn" id="btnAgain" data-i18n="again">🔁 다시 하기</button>
       </div>
     </div>
   </section>
@@ -152,16 +153,16 @@
   <!-- ⑦ 랭킹 -->
   <section id="scr-ranking" class="screen">
     <div class="card-box ranking">
-      <h2>🏆 환경지킴이 랭킹</h2>
+      <h2 data-i18n="rankTitle">🏆 환경지킴이 랭킹</h2>
       <div class="country-total" id="countryTotal"></div>
       <div class="tabs">
-        <button class="tab active" data-period="today">오늘</button>
-        <button class="tab" data-period="all">전체</button>
+        <button class="tab active" data-period="today" data-i18n="today">오늘</button>
+        <button class="tab" data-period="all" data-i18n="all">전체</button>
       </div>
       <ol class="rank-list" id="rankList"></ol>
-      <p class="rank-note">실천 횟수가 같으면 더 빨리 고른 친구가 위에 있어요.</p>
+      <p class="rank-note" data-i18n="rankNote">실천 횟수가 같으면 더 빨리 고른 친구가 위에 있어요.</p>
       <div class="row-btns">
-        <button class="main-btn" data-go="start">🏠 처음으로</button>
+        <button class="main-btn" data-go="start" data-i18n="toHome">🏠 처음으로</button>
       </div>
     </div>
   </section>
@@ -170,18 +171,18 @@
   <div id="prizeOverlay" class="prize-overlay" aria-hidden="true">
     <canvas id="fireworks"></canvas>
     <div class="prize-card">
-      <div class="prize-ribbon">🎉 당첨! 🎉</div>
-      <div class="prize-sub">모두 함께 지킨 바다</div>
-      <div class="prize-num"><span>누적</span> <b id="prizeNum">0</b><span>번째</span></div>
-      <div class="prize-title">환경 실천의 주인공!</div>
+      <div class="prize-ribbon" data-i18n="prizeRibbon">🎉 당첨! 🎉</div>
+      <div class="prize-sub" data-i18n="prizeSub">모두 함께 지킨 바다</div>
+      <div class="prize-num" data-i18n="prizeNum"><span>누적</span> <b id="prizeNum">0</b><span>번째</span></div>
+      <div class="prize-title" data-i18n="prizeTitle">환경 실천의 주인공!</div>
       <div class="prize-names" id="prizeNames"></div>
       <p class="prize-msg" id="prizeMsg"></p>
-      <button class="main-btn" id="prizeClose">확인 <small>(Enter)</small></button>
+      <button class="main-btn" id="prizeClose" data-i18n="ok">확인 <small>(Enter)</small></button>
     </div>
   </div>
 
-  <div class="maker"><a href="admin.html" class="admin-link" title="관리자 페이지">⚙️</a> 만든이: 푸르이든 · <span id="versionLabel"></span> · <span id="visitLabel" title="사이트 접속 + 게임 플레이 횟수">👀 방문 <b id="visitCount">-</b></span></div>
+  <div class="maker"><a href="admin.html" class="admin-link" title="관리자 페이지" data-i18n-title="adminTitle">⚙️</a> <span data-i18n="maker">만든이: 푸르이든</span> · <span id="versionLabel"></span> · <span id="visitLabel" title="사이트 접속 + 게임 플레이 횟수" data-i18n-title="visitsTitle"><span data-i18n="visits">👀 방문</span> <b id="visitCount">-</b></span></div>
 
-  <script type="module" src="js/game.js?v=1.6.0"></script>
+  <script type="module" src="js/game.js?v=1.7.0"></script>
 </body>
 </html>

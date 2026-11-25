@@ -1,18 +1,29 @@
-import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION, applySettings, milestonesBetween } from './data.js?v=1.6.0';
-import { startFireworks, stopFireworks } from './fireworks.js?v=1.6.0';
-import { buildScene, setLevel, effect, mascotSVG, cheerMascot } from './scene.js?v=1.6.0';
-import * as store from './store.js?v=1.6.0';
-import { sfx, setSound, isSoundOn } from './sound.js?v=1.6.0';
+import { CONFIG, CARDS, COUNTRY, BAD_WORDS, VERSION, applySettings, milestonesBetween } from './data.js?v=1.7.0';
+import { startFireworks, stopFireworks } from './fireworks.js?v=1.7.0';
+import { buildScene, setLevel, effect, mascotSVG, cheerMascot, setNameTags } from './scene.js?v=1.7.0';
+import { t, getLang, setLang, applyStatic } from './i18n.js?v=1.7.0';
+import { CARDS_EN } from './cards-en.js?v=1.7.0';
+import * as store from './store.js?v=1.7.0';
+import { sfx, setSound, isSoundOn } from './sound.js?v=1.7.0';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 const SIDES = ['korea', 'malaysia'];
 const KEYS = { korea: ['A', 'D'], malaysia: ['←', '→'] };
+// 나라 이름·마스코트 이름 (언어에 따라)
+const cName = (side) => t(side);
+const mName = (side) => t(side === 'korea' ? 'mascotKo' : 'mascotMy');
+// 카드 글자 (영어 모드면 영어 번역, 없으면 한국어)
+const cardText = (card) => (getLang() === 'en' && card.en)
+  ? { sit: card.en[0], good: card.en[1], bad: card.en[2] }
+  : { sit: card.sit, good: card.good[1], bad: card.bad[1] };
 
 let current = 'start';
 let prevSetup = 'setup1';
 let idleTimer = null;
 let lastSaved = { ids: [], period: 'today' };
+let storeMode = 'local';
+let ready = false; // 저장소 연결이 끝났는지
 
 // ---------- 게임 상태 ----------
 const S = {
@@ -62,8 +73,8 @@ async function refreshStats() {
   try {
     const s = await store.getStats();
     $('#statsBanner').innerHTML = (s.korea + s.malaysia) > 0
-      ? `지금까지 한국 친구들 <b>${s.korea}</b>번 · 말레이시아 친구들 <b>${s.malaysia}</b>번 환경을 지켰어요!`
-      : '첫 번째 환경지킴이가 되어 보세요! 🌱';
+      ? t('statsBanner', s.korea, s.malaysia)
+      : t('statsFirst');
   } catch (e) { $('#statsBanner').textContent = ''; }
 }
 
@@ -71,13 +82,28 @@ async function refreshVisitors() {
   try { $('#visitCount').textContent = (await store.getVisitors()).toLocaleString(); } catch (e) { /* 무시 */ }
 }
 
+// ---------- 언어 바꾸기 ----------
+function applyLanguage() {
+  applyStatic();
+  setNameTags(t('tagKo'), t('tagMy'));
+  const ver = $('#versionLabel');
+  if (ver) ver.dataset.tip = t(storeMode === 'firebase' ? 'online' : 'local');
+  if (!ready) return;
+  // 지금 보고 있는 화면에 맞춰 다시 그리기
+  if (current === 'start') refreshStats();
+  if (current === 'howto') { refreshSettings(); fillHowtoKeys(); }
+  if (current === 'ranking') loadRanking(lastSaved.period);
+  if (current !== 'howto') refreshSettings();
+  ['msg1', 'msg2'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = ''; });
+}
+
 // ---------- 별명 확인 ----------
 function checkNick(v) {
   const n = (v || '').trim().replace(/\s+/g, ' ');
-  if (!n) return { ok: false, msg: '별명을 적어 주세요.' };
-  if (n.length > CONFIG.NICK_MAX) return { ok: false, msg: `별명은 ${CONFIG.NICK_MAX}글자까지 쓸 수 있어요.` };
+  if (!n) return { ok: false, msg: t('nickEmpty') };
+  if (n.length > CONFIG.NICK_MAX) return { ok: false, msg: t('nickLong', CONFIG.NICK_MAX) };
   const plain = n.toLowerCase().replace(/[\s._\-~!@#$%^&*0-9]/g, '');
-  if (BAD_WORDS.some(w => plain.includes(w))) return { ok: false, msg: '고운 말로 된 다른 별명을 써 주세요. 🙂' };
+  if (BAD_WORDS.some(w => plain.includes(w))) return { ok: false, msg: t('nickBad') };
   return { ok: true, value: n };
 }
 
@@ -100,7 +126,7 @@ function setupScreens() {
   }));
 
   const go1 = () => {
-    if (!pickCountry) { $('#msg1').textContent = '나라를 먼저 골라 주세요.'; return; }
+    if (!pickCountry) { $('#msg1').textContent = t('pickFirst'); return; }
     const c = checkNick($('#nick1').value);
     if (!c.ok) { $('#msg1').textContent = c.msg; return; }
     S.mode = '1p';
@@ -117,9 +143,9 @@ function setupScreens() {
 
   const go2 = () => {
     const a = checkNick($('#nickKo').value);
-    if (!a.ok) { $('#msg2').textContent = '한국 친구: ' + a.msg; $('#nickKo').focus(); return; }
+    if (!a.ok) { $('#msg2').textContent = t('koFriend') + ': ' + a.msg; $('#nickKo').focus(); return; }
     const b = checkNick($('#nickMy').value);
-    if (!b.ok) { $('#msg2').textContent = '말레이시아 친구: ' + b.msg; $('#nickMy').focus(); return; }
+    if (!b.ok) { $('#msg2').textContent = t('myFriend') + ': ' + b.msg; $('#nickMy').focus(); return; }
     S.mode = '2p';
     S.human = { korea: true, malaysia: true };
     S.names = { korea: a.value, malaysia: b.value };
@@ -152,26 +178,26 @@ function setupScreens() {
 // 관리자 설정을 다시 불러와 반영 (게임 시작 전마다 → 새로고침 없이 바뀐 설정 적용)
 async function refreshSettings() {
   applySettings(await store.getSettings());
-  $('#howtoTip').innerHTML =
-    `⏱ 한 문제에 <b>${CONFIG.ROUND_MS / 1000}초</b>, 모두 <b>${CONFIG.ROUNDS}문제</b>예요. ` +
-    '시간 안에 고르지 못하면 실천하지 않은 것으로 쳐요. 빨리 고를수록 점수가 더 높아요!';
+  $('#howtoTip').innerHTML = t('howTip', CONFIG.ROUND_MS / 1000, CONFIG.ROUNDS);
 }
 
 async function openHowto() {
   await refreshSettings();
+  fillHowtoKeys();
+  show('howto');
+}
+
+function fillHowtoKeys() {
   if (S.mode === '1p') {
     const me = S.human.korea ? 'korea' : 'malaysia';
     const keys = me === 'korea' ? '<kbd>A</kbd> <kbd>D</kbd>' : '<kbd>←</kbd> <kbd>→</kbd>';
-    $('#howtoKeys').innerHTML =
-      `<span class="${me === 'korea' ? 'ko' : 'my'}">${escapeHtml(S.names[me])}</span> 친구는 <b>${COUNTRY[me].name}</b> 환경지킴이!<br>
-       ${keys} 키나 마우스로 골라요. 다른 나라는 <b>컴퓨터 친구</b>가 맡아요.`;
+    $('#howtoKeys').innerHTML = t('howKeys1',
+      `<span class="${me === 'korea' ? 'ko' : 'my'}">${escapeHtml(S.names[me])}</span>`, cName(me), keys);
   } else {
-    $('#howtoKeys').innerHTML =
-      `<span class="ko">한국 · ${escapeHtml(S.names.korea)}</span> : <kbd>A</kbd> 왼쪽 / <kbd>D</kbd> 오른쪽<br>
-       <span class="my">말레이시아 · ${escapeHtml(S.names.malaysia)}</span> : <kbd>←</kbd> 왼쪽 / <kbd>→</kbd> 오른쪽<br>
-       <small>마우스로 눌러도 돼요!</small>`;
+    $('#howtoKeys').innerHTML = t('howKeys2',
+      `<span class="ko">${cName('korea')} · ${escapeHtml(S.names.korea)}</span>`,
+      `<span class="my">${cName('malaysia')} · ${escapeHtml(S.names.malaysia)}</span>`);
   }
-  show('howto');
 }
 
 // ---------- 게임 진행 ----------
@@ -195,22 +221,23 @@ function stopGame() {
 
 function buildPanel(side) {
   const human = S.human[side];
-  const nm = human ? S.names[side] : '컴퓨터 친구';
+  const nm = human ? S.names[side] : t('cpu');
   $('#panel-' + side).innerHTML = `
     <div class="p-head">
       <svg viewBox="-60 -125 120 135">${mascotSVG(side)}</svg>
       <div>
-        <div class="p-country">${COUNTRY[side].name}${human ? '' : '<span class="cpu-tag">🤖 컴퓨터</span>'}</div>
-        <div class="p-name">${escapeHtml(nm)} · ${COUNTRY[side].mascot}와 함께</div>
+        <div class="p-country">${cName(side)}${human ? '' : `<span class="cpu-tag">${t('cpuTag')}</span>`}</div>
+        <div class="p-name">${escapeHtml(nm)} · ${t('withMascot', mName(side))}</div>
       </div>
-      <div class="p-score">실천 <b class="act">0</b>번</div>
+      <div class="p-score">${t('actCount')}</div>
     </div>
     <div class="p-situation"><span class="sit-emoji"></span><span class="sit-text"></span></div>
     <div class="p-choices">
       <button class="choice" data-idx="0">${human ? `<span class="key">${KEYS[side][0]}</span>` : ''}<span class="c-emoji"></span><span class="c-text"></span></button>
       <button class="choice" data-idx="1">${human ? `<span class="key">${KEYS[side][1]}</span>` : ''}<span class="c-emoji"></span><span class="c-text"></span></button>
     </div>
-    <div class="p-status"><div>컴퓨터 친구가 고민 중이에요</div><div class="thinking-dots"><span>🤔</span><span>·</span><span>·</span></div></div>`;
+    <div class="p-status"><div>${t('cpuThinking')}</div><div class="thinking-dots"><span>🤔</span><span>·</span><span>·</span></div></div>`;
+  $('#panel-' + side).dataset.timeout = t('timeout');
   $$('#panel-' + side + ' .choice').forEach(btn => {
     btn.addEventListener('click', () => { if (S.human[side]) pick(side, +btn.dataset.idx); });
     if (!human) btn.disabled = true;
@@ -249,7 +276,7 @@ function startGame() {
   fillCards();
   $$('.choice').forEach(b => { b.disabled = true; });
   const cd = $('#countdown');
-  const steps = ['3', '2', '1', '시작!'];
+  const steps = ['3', '2', '1', t('go')];
   steps.forEach((t, i) => later(() => {
     cd.textContent = t;
     cd.classList.remove('show'); void cd.offsetWidth; cd.classList.add('show');
@@ -270,14 +297,15 @@ function fillCards() {
   SIDES.forEach(side => {
     const card = S.deck[side][S.round];
     const p = $('#panel-' + side);
+    const tx = cardText(card);
     p.querySelector('.sit-emoji').textContent = card.emoji;
-    p.querySelector('.sit-text').textContent = card.sit;
+    p.querySelector('.sit-text').textContent = tx.sit;
     S.goodIdx[side] = S.order[side][S.round];
     const btns = p.querySelectorAll('.choice');
     btns.forEach((b, i) => {
       const opt = i === S.goodIdx[side] ? card.good : card.bad;
       b.querySelector('.c-emoji').textContent = opt[0];
-      b.querySelector('.c-text').textContent = opt[1];
+      b.querySelector('.c-text').textContent = i === S.goodIdx[side] ? tx.good : tx.bad;
       b.classList.remove('picked', 'good', 'bad', 'dim');
       b.querySelector('.verdict')?.remove();
       b.disabled = !S.human[side];
@@ -376,7 +404,7 @@ function pick(side, idx, fromCpu = false) {
 
 function updateGauge() {
   $('#seaMark').style.left = Math.max(3, Math.min(97, S.level)) + '%';
-  $('#seaState').textContent = S.level < 30 ? '안전 😊' : S.level < 55 ? '보통 🙂' : S.level < 75 ? '위험 😟' : '아주 위험 😱';
+  $('#seaState').textContent = t(S.level < 30 ? 'seaSafe' : S.level < 55 ? 'seaNormal' : S.level < 75 ? 'seaDanger' : 'seaVery');
 }
 
 let resolving = false;
@@ -387,15 +415,15 @@ function resolveRound() {
   let kind, delta, msg, sub;
   if (k && m) {
     kind = 'good'; delta = CONFIG.DELTA.both; S.together++;
-    msg = '💙 함께 실천했어요!'; sub = '바다가 내려가요';
+    msg = t('toastBoth'); sub = t('toastBothSub');
     sfx.down();
   } else if (k || m) {
     kind = 'half'; delta = CONFIG.DELTA.one;
-    msg = `🌊 ${k ? '한국' : '말레이시아'}만 실천했어요`; sub = '바다가 조금 올라가요… 함께해야 해요!';
+    msg = t('toastOne', cName(k ? 'korea' : 'malaysia')); sub = t('toastOneSub');
     sfx.up();
   } else {
     kind = 'bad'; delta = CONFIG.DELTA.none;
-    msg = '😱 아무도 실천하지 않았어요!'; sub = '바다가 많이 올라가요';
+    msg = t('toastNone'); sub = t('toastNoneSub');
     sfx.bigUp();
   }
   S.level = Math.max(0, Math.min(100, S.level + delta));
@@ -424,31 +452,31 @@ async function endGame() {
   const L = S.level;
   let banner, msg;
   if (L <= CONFIG.START_LEVEL - 15) {
-    banner = '<span class="rb-emoji">🌈</span>바다를 지켜냈어요!';
-    msg = '두 나라가 함께 실천해서 해수면이 내려갔어요. 최고의 환경지킴이!';
+    banner = '<span class="rb-emoji">🌈</span>' + t('resGood');
+    msg = t('resGoodMsg');
     sfx.fanfare();
   } else if (L <= CONFIG.START_LEVEL + 15) {
-    banner = '<span class="rb-emoji">🌤️</span>휴, 아슬아슬해요!';
-    msg = '조금만 더 함께 실천하면 바다를 지킬 수 있어요.';
+    banner = '<span class="rb-emoji">🌤️</span>' + t('resMid');
+    msg = t('resMidMsg');
     sfx.good();
   } else {
-    banner = '<span class="rb-emoji">🌧️</span>마을이 물에 잠기고 있어요…';
-    msg = '한 나라만 노력해서는 부족해요. 두 나라가 함께해야 바다를 지킬 수 있어요!';
+    banner = '<span class="rb-emoji">🌧️</span>' + t('resBad');
+    msg = t('resBadMsg');
     sfx.sad();
   }
   $('#resultBanner').innerHTML = banner;
   $('#resultMsg').textContent = msg;
-  $('#togetherLine').textContent = `🤝 두 나라가 함께 실천한 횟수: ${S.together} / ${CONFIG.ROUNDS}번`;
+  $('#togetherLine').textContent = t('together', S.together, CONFIG.ROUNDS);
 
   const box = $('#resultPlayers');
   box.innerHTML = SIDES.map(side => `
     <div class="rp ${side}">
       <svg viewBox="-60 -125 120 135">${mascotSVG(side)}</svg>
-      <div class="rp-name">${S.human[side] ? escapeHtml(S.names[side]) : '🤖 컴퓨터 친구'}</div>
-      <div class="rp-country">${COUNTRY[side].name} 환경지킴이</div>
-      <div class="rp-actions">실천 <b>${S.stats[side].actions}</b>번</div>
-      <div class="rp-score">점수 ${S.stats[side].score.toLocaleString()}점</div>
-      <div class="rp-rank" id="rank-${side}">${S.human[side] ? '랭킹 등록 중…' : ''}</div>
+      <div class="rp-name">${S.human[side] ? escapeHtml(S.names[side]) : t('cpuFriend')}</div>
+      <div class="rp-country">${t('guardian', cName(side))}</div>
+      <div class="rp-actions">${t('actions', S.stats[side].actions)}</div>
+      <div class="rp-score">${t('score', S.stats[side].score.toLocaleString())}</div>
+      <div class="rp-rank" id="rank-${side}">${S.human[side] ? t('ranking') : ''}</div>
     </div>`).join('');
 
   show('result');
@@ -470,11 +498,11 @@ async function endGame() {
     for (const e of entries) {
       const r = await store.getRanks(e.score);
       const el = $('#rank-' + e.country);
-      if (el) el.innerHTML = `🏆 오늘 <b class="${r.todayRank <= 3 ? 'new' : ''}">${r.todayRank}등</b> · 전체 ${r.allRank}등`;
+      if (el) el.innerHTML = t('rankResult', r.todayRank, r.allRank, r.todayRank <= 3);
     }
   } catch (err) {
     console.error(err);
-    SIDES.forEach(s => { const el = $('#rank-' + s); if (el && S.human[s]) el.textContent = '⚠️ 랭킹 저장에 실패했어요 (인터넷 확인)'; });
+    SIDES.forEach(s => { const el = $('#rank-' + s); if (el && S.human[s]) el.textContent = t('rankFail'); });
   }
 }
 
@@ -507,8 +535,8 @@ let prizeOpen = false;
 function celebrate({ milestone, names, msg }) {
   const ov = $('#prizeOverlay');
   $('#prizeNames').innerHTML = names.map(n =>
-    `<span class="prize-name ${n.country}">${escapeHtml(n.name)} <small>${COUNTRY[n.country]?.name || ''}</small></span>`).join('');
-  $('#prizeMsg').textContent = msg || '';
+    `<span class="prize-name ${n.country}">${escapeHtml(n.name)} <small>${COUNTRY[n.country] ? cName(n.country) : ''}</small></span>`).join('');
+  $('#prizeMsg').textContent = getLang() === 'en' ? (msg ? t('prizeMsgEn') : '') : (msg || '');
   ov.classList.add('show');
   ov.setAttribute('aria-hidden', 'false');
   prizeOpen = true;
@@ -541,25 +569,25 @@ function closePrize() {
 async function loadRanking(period = 'today') {
   $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.period === period));
   const list = $('#rankList');
-  list.innerHTML = '<li class="empty">불러오는 중… 🌊</li>';
+  list.innerHTML = `<li class="empty">${t('loading')}</li>`;
   try {
     const [rows, st] = await Promise.all([store.getRanking(period, 10), store.getStats()]);
     $('#countryTotal').innerHTML = `
-      <div class="ct korea">한국 친구들의 실천<b>${st.korea.toLocaleString()}번</b></div>
-      <div class="ct malaysia">말레이시아 친구들의 실천<b>${st.malaysia.toLocaleString()}번</b></div>`;
-    if (!rows.length) { list.innerHTML = '<li class="empty">아직 기록이 없어요. 첫 번째 환경지킴이가 되어 보세요! 🌱</li>'; return; }
+      <div class="ct korea">${t('ctKo', st.korea.toLocaleString())}</div>
+      <div class="ct malaysia">${t('ctMy', st.malaysia.toLocaleString())}</div>`;
+    if (!rows.length) { list.innerHTML = `<li class="empty">${t('rankEmpty')}</li>`; return; }
     const medal = ['🥇', '🥈', '🥉'];
     list.innerHTML = rows.map((r, i) => `
       <li class="${lastSaved.ids.includes(r.id) ? 'me' : ''}">
         <span class="rk">${medal[i] || (i + 1)}</span>
         <span class="nm">${escapeHtml(r.nickname)}</span>
-        <span class="cn ${r.country}">${COUNTRY[r.country]?.name || ''}</span>
-        <span class="ac">실천 ${r.actions}번</span>
-        <span class="sc">${Number(r.score).toLocaleString()}점</span>
+        <span class="cn ${r.country}">${COUNTRY[r.country] ? cName(r.country) : ''}</span>
+        <span class="ac">${t('rankActs', r.actions)}</span>
+        <span class="sc">${t('rankScore', Number(r.score).toLocaleString())}</span>
       </li>`).join('');
   } catch (e) {
     console.error(e);
-    list.innerHTML = '<li class="empty">랭킹을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</li>';
+    list.innerHTML = `<li class="empty">${t('rankErr')}</li>`;
   }
 }
 
@@ -594,14 +622,24 @@ window.addEventListener('keydown', (e) => {
 (async function init() {
   buildScene($('#scene'));
   setupScreens();
+  // 카드에 영어 번역 붙이기 (data.js와 cards-en.js가 같은 순서)
+  SIDES.forEach(side => CARDS[side].forEach((c, i) => { if (CARDS_EN[side]?.[i]) c.en = CARDS_EN[side][i]; }));
+  applyLanguage();
+  $('#btnLang').addEventListener('click', () => {
+    sfx.click();
+    setLang(getLang() === 'en' ? 'ko' : 'en');
+    applyLanguage();
+  });
   const mode = await store.initStore();
   await store.countVisit();
   await refreshSettings();
   const ver = $('#versionLabel');
   ver.textContent = VERSION;
   // 연결 상태는 화면에 표시하지 않고, 마우스를 올리면만 보이게
-  ver.dataset.tip = mode === 'firebase' ? '🟢 온라인 랭킹 연결됨' : '🟠 로컬 랭킹 (이 컴퓨터에만 저장)';
+  ver.dataset.tip = t(mode === 'firebase' ? 'online' : 'local');
+  storeMode = mode;
   $('#prizeClose').addEventListener('click', () => { sfx.click(); closePrize(); });
+  ready = true;
   show('start');
   // 관리자 페이지의 '축하 화면 미리보기' (index.html?prizeTest=1)
   if (new URLSearchParams(location.search).has('prizeTest')) {

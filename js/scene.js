@@ -70,12 +70,30 @@ export function mascotSVG(type) {
 }
 
 // 섬 위 마스코트 이름표
+function tagWidth(text) {
+  // 한글은 넓게, 영문은 좁게 계산
+  let w = 0;
+  for (const ch of text) w += /[\u3131-\uD79D]/.test(ch) ? 15 : 8.6;
+  return Math.round(w + 24);
+}
 function nameTag(text, color) {
-  const w = text.length * 15 + 22;
+  const w = tagWidth(text);
   return `<g class="name-tag">
     <rect x="${-w / 2}" y="10" width="${w}" height="26" rx="13" fill="#fff" stroke="${color}" stroke-width="3"/>
     <text x="0" y="29" text-anchor="middle" font-size="16" fill="${color}" font-family="Jua, sans-serif">${text}</text>
   </g>`;
+}
+
+// 언어를 바꿀 때 섬 위 이름표 글자 바꾸기
+export function setNameTags(ko, my) {
+  [['mascotKorea', ko], ['mascotMalaysia', my]].forEach(([id, text]) => {
+    const g = document.querySelector('#' + id + ' .name-tag');
+    if (!g) return;
+    const w = tagWidth(text);
+    const r = g.querySelector('rect');
+    r.setAttribute('x', -w / 2); r.setAttribute('width', w);
+    g.querySelector('text').textContent = text;
+  });
 }
 
 function wavePath(amp, step) {

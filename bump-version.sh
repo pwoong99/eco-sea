@@ -6,7 +6,7 @@ V="$1"
 if [ -z "$V" ]; then echo "사용법: ./bump-version.sh 1.3.2"; exit 1; fi
 cd "$(dirname "$0")"
 sed -i -E "s/export const VERSION = '[^']+';/export const VERSION = 'v$V';/" js/data.js
-sed -i -E "s#(from '\./[a-z-]+\.js)(\?v=[0-9.]+)?'#\1?v=$V'#g" js/*.js
+sed -i -E "s#(from '\./[a-z0-9-]+\.js)(\?v=[0-9.]+)?'#\1?v=$V'#g" js/*.js
 sed -i -E "s#(href=\"css/style\.css)(\?v=[0-9.]+)?\"#\1?v=$V\"#; s#(src=\"js/game\.js)(\?v=[0-9.]+)?\"#\1?v=$V\"#" index.html
 sed -i -E "s#(src=\"js/admin\.js)(\?v=[0-9.]+)?\"#\1?v=$V\"#" admin.html
 echo "v$V 로 바꿨어요."

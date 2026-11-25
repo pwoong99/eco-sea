@@ -360,7 +360,7 @@ kbd {
 @keyframes dot { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 .cpu-tag { font-size: .75em; background: #eef3f8; padding: .2vh .6vw; border-radius: 999px; margin-left: .3vw; color: #6b7890; }
 .panel.timeout::after {
-  content: '⏰ 시간 초과!'; position: absolute; top: -2.2vh; left: 50%; transform: translateX(-50%);
+  content: attr(data-timeout); position: absolute; top: -2.2vh; left: 50%; transform: translateX(-50%);
   background: var(--bad); color: #fff; padding: .4vh 1vw; border-radius: 999px; font-size: clamp(14px, 1.1vw, 18px);
 }
 
@@ -507,3 +507,10 @@ kbd {
 .prize-msg:empty { display: none; }
 
 #visitLabel b { font-weight: normal; color: var(--ink); }
+
+/* 언어 바꾸기 버튼 (오른쪽 위) */
+.tool-btn.lang-btn {
+  width: auto; min-width: 0; border-radius: 999px; padding: 0 1vw;
+  font-family: inherit; font-size: clamp(14px, 1.1vw, 18px); color: var(--ink);
+}
+body.in-game .lang-btn { display: none; }
